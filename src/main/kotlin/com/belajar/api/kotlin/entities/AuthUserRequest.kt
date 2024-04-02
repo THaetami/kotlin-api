@@ -4,7 +4,7 @@ import com.belajar.api.kotlin.annotation.EmailPasswordMatch
 import com.belajar.api.kotlin.annotation.ValidEmail
 import jakarta.validation.constraints.NotBlank
 
-@EmailPasswordMatch
+@EmailPasswordMatch(passwordPath = "password")
 data class AuthUserRequest (
 
     @field:NotBlank

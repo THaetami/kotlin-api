@@ -10,14 +10,22 @@ class EmailPasswordMatchValidator(
     private val userRepository: UserRepository
 ) : ConstraintValidator<EmailPasswordMatch, AuthUserRequest> {
 
+    private lateinit var passwordPath: String
+
+    override fun initialize(constraintAnnotation: EmailPasswordMatch) {
+        passwordPath = constraintAnnotation.passwordPath
+    }
+
     override fun isValid(value: AuthUserRequest, context: ConstraintValidatorContext): Boolean {
 
-        // Mengambil user berdasarkan email dari repository
         val user = userRepository.getUserByEmail(value.email)
 
-        // Jika email dan password tidak cocok
         if (user != null) {
             if (!user.comparePassword(value.password)) {
+                context.disableDefaultConstraintViolation()
+                context.buildConstraintViolationWithTemplate("Password doesn't match")
+                    .addPropertyNode(passwordPath)
+                    .addConstraintViolation()
                 return false
             }
         }
