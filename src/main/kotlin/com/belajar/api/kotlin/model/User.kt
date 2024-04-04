@@ -10,8 +10,8 @@ import java.util.*
 class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    val id: Int = 0
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    var id: Int? = null
 
     @Column(name = "name")
     var name: String = ""

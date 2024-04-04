@@ -3,6 +3,7 @@ package com.belajar.api.kotlin.controller
 import com.belajar.api.kotlin.entities.WebResponse
 import com.belajar.api.kotlin.error.NotFoundException
 import com.belajar.api.kotlin.error.UnauthorizedException
+import com.belajar.api.kotlin.error.ValidationCustomException
 import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -47,6 +48,22 @@ class ErrorController {
                 code = HttpStatus.UNAUTHORIZED.value(),
                 status = HttpStatus.UNAUTHORIZED.name,
                 data = unauthorizedException.message ?: ""
+            )
+        )
+    }
+
+    @ExceptionHandler(value = [ValidationCustomException::class])
+    fun validationCustom(validationCustomException: ValidationCustomException): ResponseEntity<WebResponse<Any>> {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(
+            WebResponse(
+                code = HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                status = HttpStatus.UNPROCESSABLE_ENTITY.name,
+                data = arrayOf(
+                    mapOf(
+                        "path" to validationCustomException.path,
+                        "message" to validationCustomException.message
+                    )
+                )
             )
         )
     }

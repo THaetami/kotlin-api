@@ -1,31 +1,26 @@
 package com.belajar.api.kotlin.service.impl
 
-import com.belajar.api.kotlin.entities.AuthUserRequest
-import com.belajar.api.kotlin.entities.CreateUserRequest
-import com.belajar.api.kotlin.entities.UserResponse
+import com.belajar.api.kotlin.entities.*
 import com.belajar.api.kotlin.error.NotFoundException
-import com.belajar.api.kotlin.error.UnauthorizedException
+import com.belajar.api.kotlin.error.ValidationCustomException
 import com.belajar.api.kotlin.model.User
 import com.belajar.api.kotlin.repository.UserRepository
 import com.belajar.api.kotlin.service.UserService
 import com.belajar.api.kotlin.validation.ValidationUser
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.io.Decoders
-import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.stereotype.Service
 import java.util.*
-import javax.crypto.SecretKey
-import com.belajar.api.kotlin.utils.*
+import com.belajar.api.kotlin.utils.AuthUtil
 
 
 @Service
 class UserServiceImpl(
     private val userRepository: UserRepository,
-    val validationUser: ValidationUser
+    val validationUser: ValidationUser,
 ): UserService {
+
+    val authUtil = AuthUtil()
 
     override fun create(createUserRequest: CreateUserRequest): UserResponse {
 
@@ -38,25 +33,29 @@ class UserServiceImpl(
         user.password = createUserRequest.password!!
         user.createdAt = Date()
 
-        userRepository.save(user)
+        try {
+            userRepository.save(user)
 
-        return UserResponse(
-            id = user.id,
-            name = user.name,
-            createdAt = user.createdAt!!,
-            updatedAt = user.updatedAt
-        )
+            return UserResponse(
+                id = user.id,
+                name = user.name,
+                createdAt = user.createdAt!!,
+                updatedAt = user.updatedAt
+            )
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to create user: ${e.message}")
+        }
 
     }
 
-    override fun auth(authUserRequest: AuthUserRequest, response: HttpServletResponse) {
+    override fun authenticate(authUserRequest: AuthUserRequest, response: HttpServletResponse) {
 
         validationUser.validate(authUserRequest)
 
         val user = userRepository.getUserByEmail(authUserRequest.email)
             ?: throw NotFoundException("User Not Found")
 
-        val jwt = generateJwt(user.id)
+        val jwt = authUtil.generateJwt(user.id!!)
 
         val cookie = Cookie("jwt", jwt)
         cookie.isHttpOnly = true
@@ -66,15 +65,63 @@ class UserServiceImpl(
     }
 
     override fun get(jwt: String?): UserResponse {
-        val userId = getUserIdFromJwt(jwt)
 
+        val userId = authUtil.getUserIdFromJwt(jwt)
+
+        try {
+            val user = userRepository.getReferenceById(userId)
+
+            return UserResponse(
+                id = user.id,
+                name = user.name,
+                createdAt = user.createdAt,
+                updatedAt = user.updatedAt
+            )
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to retrieve user: ${e.message}")
+        }
+
+    }
+
+    override fun update(jwt: String?, updateUserRequest: UpdateUserRequest): UserResponse {
+        val userId = authUtil.getUserIdFromJwt(jwt)
+        validationUser.validate(updateUserRequest)
         val user = userRepository.getReferenceById(userId)
-        return UserResponse(
-            id = user.id,
-            name = user.name,
-            createdAt = user.createdAt,
-            updatedAt = user.updatedAt
-        )
+
+        if (!updateUserRequest.email.isNullOrBlank()) {
+            if (updateUserRequest.email != user.email) {
+                if (userRepository.existsByEmail(updateUserRequest.email)) {
+                    throw ValidationCustomException("Email is already in use", "email")
+                }
+                user.email = updateUserRequest.email
+            }
+        }
+
+        user.apply {
+            name = updateUserRequest.name
+            password = updateUserRequest.password!!
+            updatedAt = Date()
+        }
+
+        try {
+            userRepository.save(user)
+
+            return UserResponse(
+                id = user.id,
+                name = user.name,
+                createdAt = user.createdAt!!,
+                updatedAt = user.updatedAt
+            )
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to updated user: ${e.message}")
+        }
+
+    }
+
+    override fun unauthenticate(jwt: String?, response: HttpServletResponse) {
+        authUtil.getUserIdFromJwt(jwt)
+
+        authUtil.clearJwtCookie(response)
     }
 
 }

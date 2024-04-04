@@ -6,7 +6,7 @@ import jakarta.validation.ConstraintValidatorContext
 
 class ValidEmailValidator : ConstraintValidator<ValidEmail, String> {
     override fun isValid(value: String?, context: ConstraintValidatorContext?): Boolean {
-        if (value == null || value.isBlank()) {
+        if (value.isNullOrBlank()) {
             return false
         }
 

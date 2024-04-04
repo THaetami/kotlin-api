@@ -4,7 +4,7 @@ import java.util.Date
 
 data class UserResponse (
 
-    val id: Int,
+    val id: Int?,
 
     val name: String,
 
