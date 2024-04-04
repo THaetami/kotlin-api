@@ -1,6 +1,6 @@
-package com.belajar.api.kotlin.annotation
+package com.belajar.api.kotlin.annotation.user
 
-import com.belajar.api.kotlin.validation.EmailPasswordMatchValidator
+import com.belajar.api.kotlin.validation.user.EmailPasswordMatchValidator
 import jakarta.validation.Constraint
 import jakarta.validation.Payload
 import kotlin.reflect.KClass

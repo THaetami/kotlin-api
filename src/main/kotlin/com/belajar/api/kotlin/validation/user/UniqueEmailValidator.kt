@@ -1,6 +1,6 @@
-package com.belajar.api.kotlin.validation
+package com.belajar.api.kotlin.validation.user
 
-import com.belajar.api.kotlin.annotation.UniqueEmail
+import com.belajar.api.kotlin.annotation.user.UniqueEmail
 import com.belajar.api.kotlin.repository.UserRepository
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
@@ -21,4 +21,5 @@ class UniqueEmailValidator : ConstraintValidator<UniqueEmail, String> {
         }
         return !userRepository.existsByEmail(value)
     }
+
 }

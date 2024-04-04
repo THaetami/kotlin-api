@@ -1,7 +1,7 @@
-package com.belajar.api.kotlin.validation
+package com.belajar.api.kotlin.validation.user
 
-import com.belajar.api.kotlin.annotation.EmailPasswordMatch
-import com.belajar.api.kotlin.entities.AuthUserRequest
+import com.belajar.api.kotlin.annotation.user.EmailPasswordMatch
+import com.belajar.api.kotlin.entities.user.AuthUserRequest
 import com.belajar.api.kotlin.repository.UserRepository
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
@@ -17,7 +17,6 @@ class EmailPasswordMatchValidator(
     }
 
     override fun isValid(value: AuthUserRequest, context: ConstraintValidatorContext): Boolean {
-
         val user = userRepository.getUserByEmail(value.email)
 
         if (user != null) {
@@ -32,5 +31,6 @@ class EmailPasswordMatchValidator(
 
         return true
     }
+
 }
 

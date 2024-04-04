@@ -1,6 +1,6 @@
-package com.belajar.api.kotlin.annotation
+package com.belajar.api.kotlin.annotation.user
 
-import com.belajar.api.kotlin.validation.PassIfNotBlankValidator
+import com.belajar.api.kotlin.validation.user.PassIfNotBlankValidator
 import jakarta.validation.Constraint
 import jakarta.validation.Payload
 import kotlin.reflect.KClass

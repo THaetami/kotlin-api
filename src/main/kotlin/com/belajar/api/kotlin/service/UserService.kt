@@ -1,19 +1,11 @@
 package com.belajar.api.kotlin.service
 
-import com.belajar.api.kotlin.entities.*
-import jakarta.servlet.http.HttpServletResponse
-import org.springframework.http.server.reactive.ServerHttpResponse
+import com.belajar.api.kotlin.entities.user.CreateUserRequest
+import com.belajar.api.kotlin.entities.user.UpdateUserRequest
+import com.belajar.api.kotlin.entities.user.UserResponse
 
 interface UserService {
-
     fun create(createUserRequest: CreateUserRequest): UserResponse
-
-    fun authenticate(authUserRequest: AuthUserRequest, response: HttpServletResponse)
-
     fun get(jwt: String?): UserResponse
-
     fun update(jwt: String?, updateUserRequest: UpdateUserRequest): UserResponse
-
-    fun unauthenticate(jwt: String?, response: HttpServletResponse)
-
 }

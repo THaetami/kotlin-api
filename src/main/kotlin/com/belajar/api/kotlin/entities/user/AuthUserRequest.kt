@@ -1,7 +1,7 @@
-package com.belajar.api.kotlin.entities
+package com.belajar.api.kotlin.entities.user
 
-import com.belajar.api.kotlin.annotation.EmailPasswordMatch
-import com.belajar.api.kotlin.annotation.ValidEmail
+import com.belajar.api.kotlin.annotation.user.EmailPasswordMatch
+import com.belajar.api.kotlin.annotation.user.ValidEmail
 import jakarta.validation.constraints.NotBlank
 
 @EmailPasswordMatch(passwordPath = "password")

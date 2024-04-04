@@ -1,9 +1,8 @@
-package com.belajar.api.kotlin.entities
+package com.belajar.api.kotlin.entities.user
 
-import com.belajar.api.kotlin.annotation.UniqueEmail
-import com.belajar.api.kotlin.annotation.ValidEmail
+import com.belajar.api.kotlin.annotation.user.UniqueEmail
+import com.belajar.api.kotlin.annotation.user.ValidEmail
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 

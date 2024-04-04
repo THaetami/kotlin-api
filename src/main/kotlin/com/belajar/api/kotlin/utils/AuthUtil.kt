@@ -1,6 +1,6 @@
 package com.belajar.api.kotlin.utils
 
-import com.belajar.api.kotlin.error.UnauthorizedException
+import com.belajar.api.kotlin.exception.UnauthorizedException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
@@ -10,6 +10,7 @@ import java.util.*
 import javax.crypto.SecretKey
 
 class AuthUtil {
+
     private val secret = "4bb6d1dfbafb64a681139d1586b6f1160d18159afd57c8c79136d7490630407c"
 
     private fun getKey(): SecretKey {
@@ -51,4 +52,5 @@ class AuthUtil {
         cookie.maxAge = 0
         response.addCookie(cookie)
     }
+
 }

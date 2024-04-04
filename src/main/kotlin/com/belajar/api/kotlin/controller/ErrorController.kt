@@ -1,9 +1,9 @@
 package com.belajar.api.kotlin.controller
 
 import com.belajar.api.kotlin.entities.WebResponse
-import com.belajar.api.kotlin.error.NotFoundException
-import com.belajar.api.kotlin.error.UnauthorizedException
-import com.belajar.api.kotlin.error.ValidationCustomException
+import com.belajar.api.kotlin.exception.NotFoundException
+import com.belajar.api.kotlin.exception.UnauthorizedException
+import com.belajar.api.kotlin.exception.ValidationCustomException
 import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

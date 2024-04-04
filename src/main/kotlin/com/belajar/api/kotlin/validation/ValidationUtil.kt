@@ -5,7 +5,7 @@ import jakarta.validation.Validator
 import org.springframework.stereotype.Component
 
 @Component
-class ValidationUser(val validator: Validator) {
+class ValidationUtil(val validator: Validator) {
 
     fun validate(any: Any) {
         val result = validator.validate(any)

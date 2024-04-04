@@ -1,4 +1,4 @@
-package com.belajar.api.kotlin.entities
+package com.belajar.api.kotlin.entities.user
 
 import java.util.Date
 
