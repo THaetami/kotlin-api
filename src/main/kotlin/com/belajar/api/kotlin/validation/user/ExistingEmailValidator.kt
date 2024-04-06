@@ -6,10 +6,9 @@ import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import org.springframework.beans.factory.annotation.Autowired
 
-class ExistingEmailValidator : ConstraintValidator<ExistingEmail, String> {
-
-    @Autowired
-    private lateinit var userRepository: UserRepository
+class ExistingEmailValidator(
+    private var userRepository: UserRepository
+) : ConstraintValidator<ExistingEmail, String> {
 
     override fun initialize(constraintAnnotation: ExistingEmail) {
         super.initialize(constraintAnnotation)

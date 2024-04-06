@@ -64,17 +64,12 @@ class UserServiceImpl(
 
     override fun update(jwt: String?, updateUserRequest: UpdateUserRequest): UserResponse {
         val userId = authUtil.getUserIdFromJwt(jwt)
+
         validationUtil.validate(updateUserRequest)
+
         val user = userRepository.getReferenceById(userId)
 
-        if (!updateUserRequest.email.isNullOrBlank()) {
-            if (updateUserRequest.email != user.email) {
-                if (userRepository.existsByEmail(updateUserRequest.email)) {
-                    throw ValidationCustomException("Email has already been taken", "email")
-                }
-                user.email = updateUserRequest.email
-            }
-        }
+        updateEmailIfChanged(updateUserRequest, user, userRepository)
 
         user.apply {
             name = updateUserRequest.name
@@ -93,6 +88,18 @@ class UserServiceImpl(
             )
         } catch (e: Exception) {
             throw RuntimeException("Failed to updated user: ${e.message}")
+        }
+    }
+
+
+    private fun updateEmailIfChanged(updateUserRequest: UpdateUserRequest, user: User, userRepository: UserRepository) {
+        if (!updateUserRequest.email.isNullOrBlank()) {
+            if (updateUserRequest.email != user.email) {
+                if (userRepository.existsByEmail(updateUserRequest.email)) {
+                    throw ValidationCustomException("Email has already been taken", "email")
+                }
+                user.email = updateUserRequest.email
+            }
         }
     }
 
