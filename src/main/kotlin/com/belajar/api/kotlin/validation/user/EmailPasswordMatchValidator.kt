@@ -7,10 +7,10 @@ import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 
 class EmailPasswordMatchValidator(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) : ConstraintValidator<EmailPasswordMatch, AuthUserRequest> {
 
-    private lateinit var passwordPath: String
+    lateinit var passwordPath: String
 
     override fun initialize(constraintAnnotation: EmailPasswordMatch) {
         passwordPath = constraintAnnotation.passwordPath

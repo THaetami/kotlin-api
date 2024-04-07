@@ -1,30 +1,25 @@
 package com.belajar.api.kotlin.validation.user
 
 import com.belajar.api.kotlin.annotation.user.EmailIfNotBlank
-import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
+@TestInstance(value = TestInstance.Lifecycle.PER_CLASS)
 class EmailIfNotBlankValidatorTest {
 
     private lateinit var validator: EmailIfNotBlankValidator
 
-    private fun mockAnnotation(): EmailIfNotBlank {
-        return mock(EmailIfNotBlank::class.java).apply {
-            `when`(message).thenReturn("Invalid email format")
-        }
-    }
-
     @Mock
     private lateinit var constraintValidatorContext: ConstraintValidatorContext
 
-    @BeforeEach
+    @BeforeAll
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         validator = EmailIfNotBlankValidator()
@@ -57,6 +52,12 @@ class EmailIfNotBlankValidatorTest {
             .thenReturn(mock())
 
         assertTrue(validator.isValid("test@example.com", constraintValidatorContext))
+    }
+
+    private fun mockAnnotation(): EmailIfNotBlank {
+        return mock(EmailIfNotBlank::class.java).apply {
+            `when`(message).thenReturn("Invalid email format")
+        }
     }
 
 }

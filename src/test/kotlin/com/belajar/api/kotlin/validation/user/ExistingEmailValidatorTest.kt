@@ -1,20 +1,20 @@
 package com.belajar.api.kotlin.validation.user
 
 import com.belajar.api.kotlin.annotation.user.ExistingEmail
-import com.belajar.api.kotlin.annotation.user.PassIfNotBlank
-import com.belajar.api.kotlin.annotation.user.UniqueEmail
 import com.belajar.api.kotlin.repository.UserRepository
 import jakarta.validation.ConstraintValidatorContext
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
+@TestInstance(value = TestInstance.Lifecycle.PER_CLASS)
 class ExistingEmailValidatorTest {
 
     @Mock
@@ -23,11 +23,10 @@ class ExistingEmailValidatorTest {
     @InjectMocks
     private lateinit var validator: ExistingEmailValidator
 
-
     @Mock
     private lateinit var constraintValidatorContext: ConstraintValidatorContext
 
-    @BeforeEach
+    @BeforeAll
     fun setUp() {
         MockitoAnnotations.openMocks(this)
         validator = ExistingEmailValidator(userRepository)

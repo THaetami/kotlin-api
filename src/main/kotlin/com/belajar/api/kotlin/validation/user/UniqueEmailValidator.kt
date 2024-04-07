@@ -10,10 +10,6 @@ class UniqueEmailValidator(
     private val userRepository: UserRepository
 ) : ConstraintValidator<UniqueEmail, String> {
 
-    override fun initialize(constraintAnnotation: UniqueEmail) {
-        super.initialize(constraintAnnotation)
-    }
-
     override fun isValid(value: String?, context: ConstraintValidatorContext?): Boolean {
         if (value.isNullOrBlank()) {
             return false
