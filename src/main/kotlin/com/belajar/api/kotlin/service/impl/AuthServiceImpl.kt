@@ -24,6 +24,7 @@ class AuthServiceImpl(
         val user = userRepository.getUserByEmail(authUserRequest.email)
             ?: throw NotFoundException("User Not Found")
 
+
         val jwt = authUtil.generateJwt(user.id!!)
 
         val cookie = Cookie("jwt", jwt)

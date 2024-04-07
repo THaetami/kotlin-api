@@ -24,12 +24,12 @@ class UserServiceImpl(
     override fun create(createUserRequest: CreateUserRequest): UserResponse {
         validationUtil.validate(createUserRequest)
 
-        val user = User()
-
-        user.name = createUserRequest.name!!
-        user.email = createUserRequest.email!!
-        user.password = createUserRequest.password!!
-        user.createdAt = Date()
+        val user = User().apply {
+            email = createUserRequest.email!!
+            name = createUserRequest.name!!
+            password = createUserRequest.password!!
+            createdAt = Date()
+        }
 
         try {
             userRepository.save(user)
@@ -90,7 +90,6 @@ class UserServiceImpl(
             throw RuntimeException("Failed to updated user: ${e.message}")
         }
     }
-
 
     private fun updateEmailIfChanged(updateUserRequest: UpdateUserRequest, user: User, userRepository: UserRepository) {
         if (!updateUserRequest.email.isNullOrBlank()) {

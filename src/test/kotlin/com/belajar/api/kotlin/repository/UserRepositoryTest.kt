@@ -1,53 +1,72 @@
 package com.belajar.api.kotlin.repository
 
 import com.belajar.api.kotlin.model.User
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.Mockito.*
-import org.mockito.junit.jupiter.MockitoExtension
+import org.junit.jupiter.api.TestInstance
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 
-@ExtendWith(MockitoExtension::class)
+
+@DataJpaTest(showSql = false)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestInstance(value = TestInstance.Lifecycle.PER_CLASS)
 class UserRepositoryTest {
 
-    @Mock
-    lateinit var userRepository: UserRepository
+    @Autowired
+    private lateinit var userRepository: UserRepository
 
-    @Test
-    fun `Test existsByEmail returns true`() {
-        val email = "test@example.com"
-        `when`(userRepository.existsByEmail(email)).thenReturn(true)
+    private lateinit var mockUser: User
 
-        val result = userRepository.existsByEmail(email)
-
-        assertEquals(true, result)
-    }
-
-    @Test
-    fun `Test existsByEmail returns false`() {
-        val email = "test@example.com"
-        `when`(userRepository.existsByEmail(email)).thenReturn(false)
-
-        val result = userRepository.existsByEmail(email)
-
-        assertEquals(false, result)
-    }
-
-    @Test
-    fun `Test getUserByEmail returns user`() {
-        val email = "test@example.com"
-        val user = User().apply {
-            id = 1
-            name = "Test User"
+    private fun prepareUser(email: String): User {
+        return User().apply {
+            name = "name"
             this.email = email
             password = "password"
         }
-        `when`(userRepository.getUserByEmail(email)).thenReturn(user)
+    }
 
-        val result = userRepository.getUserByEmail(email)
+    @BeforeAll
+    fun setUp() {
+        mockUser = prepareUser("email1")
+        userRepository.save(mockUser)
+    }
 
-        assertEquals(user, result)
+    @Test
+    fun `it should return true when user exists by email`() {
+        val exists = userRepository.existsByEmail("email1")
+        assertTrue(exists)
+    }
+
+    @Test
+    fun `it should return false when user not exists by email`() {
+        val exists = userRepository.existsByEmail("not@exist.com")
+        assertFalse(exists)
+    }
+
+    @Test
+    fun `it should return user by email`() {
+        val foundUser = userRepository.getUserByEmail("email1")
+
+        assertNotNull(foundUser)
+
+        assertEquals(mockUser.name, foundUser?.name)
+        assertEquals(mockUser.email, foundUser?.email)
+        assertEquals(mockUser.password, foundUser?.password)
+    }
+
+    @Test
+    fun `it should return null if user does not exist by email`() {
+        val foundUser = userRepository.getUserByEmail("notfound@example.com")
+        assertNull(foundUser)
+    }
+
+    @AfterAll
+    fun tearDown() {
+        userRepository.delete(mockUser)
     }
 
 }
