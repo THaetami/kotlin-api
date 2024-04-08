@@ -4,7 +4,6 @@ import com.belajar.api.kotlin.annotation.user.UniqueEmail
 import com.belajar.api.kotlin.repository.UserRepository
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
-import org.springframework.beans.factory.annotation.Autowired
 
 class UniqueEmailValidator(
     private val userRepository: UserRepository
