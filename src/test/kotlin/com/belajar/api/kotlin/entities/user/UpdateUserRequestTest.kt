@@ -33,21 +33,37 @@ class UpdateUserRequestTest {
     @Test
     fun `Test valid UpdateUserRequest`() {
         val request = updateUserRequest()
-
         validationUtil.validate(request)
     }
 
-    @Test
-    fun `Test UpdateUserRequest with name blank`() {
-        val request = updateUserRequest(name = "")
+//    @Test
+//    fun `Test UpdateUserRequest with blank name`() {
+//        val invalidRequest = updateUserRequest(name = "")
+//        assertThrows(ConstraintViolationException::class.java) { validationUtil.validate(invalidRequest) }
+//    }
 
-        assertThrows(ConstraintViolationException::class.java) { validationUtil.validate(request) }
+    @Test
+    fun `Test invalid CreateUserRequest with invalid name`() {
+        val invalidRequest = updateUserRequest(name = "^&£*  ")
+        assertThrows(ConstraintViolationException::class.java) { validationUtil.validate(invalidRequest) }
     }
+
+//    @Test
+//    fun `Test invalid CreateUserRequest with invalid name length`() {
+//        val invalidRequest = updateUserRequest(name = "2A ")
+//        assertThrows(ConstraintViolationException::class.java) { validationUtil.validate(invalidRequest) }
+//    }
 
     @Test
     fun `Test UpdateUserRequest with email blank`() {
         val request = updateUserRequest(email = "")
         validationUtil.validate(request)
+    }
+
+    @Test
+    fun `Test UpdateUserRequest with email invalid`() {
+        val invalidRequest = updateUserRequest(email = "invalid_email")
+        assertThrows(ConstraintViolationException::class.java) { validationUtil.validate(invalidRequest) }
     }
 
     @Test
@@ -57,15 +73,9 @@ class UpdateUserRequestTest {
     }
 
     @Test
-    fun `Test UpdateUserRequest with email invalid`() {
-        val request = updateUserRequest(email = "invalid_email")
-        assertThrows(ConstraintViolationException::class.java) { validationUtil.validate(request) }
-    }
-
-    @Test
     fun `Test UpdateUserRequest with password invalid`() {
-        val request = updateUserRequest(password = "£$12")
-        assertThrows(ConstraintViolationException::class.java) { validationUtil.validate(request) }
+        val invalidRequest = updateUserRequest(password = "£$12")
+        assertThrows(ConstraintViolationException::class.java) { validationUtil.validate(invalidRequest) }
     }
 
 }

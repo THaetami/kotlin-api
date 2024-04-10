@@ -30,7 +30,6 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	implementation("io.jsonwebtoken:jjwt:0.12.5")
-//	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
 }
 
 tasks.withType<KotlinCompile> {

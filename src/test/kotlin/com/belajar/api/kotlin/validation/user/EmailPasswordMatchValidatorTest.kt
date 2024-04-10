@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
@@ -21,17 +22,19 @@ class EmailPasswordMatchValidatorTest {
     @Mock
     private lateinit var userRepository: UserRepository
 
+    @InjectMocks
     private lateinit var validator: EmailPasswordMatchValidator
 
     @BeforeAll
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        validator = EmailPasswordMatchValidator(userRepository)
+        validator = EmailPasswordMatchValidator()
+        validator.userRepository = userRepository
         validator.passwordPath = "password"
     }
 
     @Test
-    fun `test isValid when user exists and password matches`() {
+    fun `Test isValid when user exists and password matches`() {
         val user = User().apply {
             email ="test@example.com"
             password = "password123"
@@ -39,33 +42,27 @@ class EmailPasswordMatchValidatorTest {
         val request = AuthUserRequest("test@example.com", "password123")
         `when`(userRepository.getUserByEmail("test@example.com")).thenReturn(user)
 
-        val result = validator.isValid(request, mockConstraintValidatorContext())
-
-        assertTrue(result)
+        assertTrue(validator.isValid(request, mockConstraintValidatorContext()))
     }
 
     @Test
-    fun `test isValid when user exists but password doesn't match`() {
+    fun `Test isValid when user exists but password doesn't match`() {
         val user = User().apply {
             email ="test@example.com"
             password = "password123"
         }
-        val request = AuthUserRequest("test@example.com", "wrongpassword")
+        val request = AuthUserRequest("test@example.com", "wrongPass")
         `when`(userRepository.getUserByEmail("test@example.com")).thenReturn(user)
 
-        val result = validator.isValid(request, mockConstraintValidatorContext())
-
-        assertFalse(result)
+        assertFalse(validator.isValid(request, mockConstraintValidatorContext()))
     }
 
     @Test
-    fun `test isValid when user doesn't exist`() {
+    fun `Test isValid when user doesn't exist`() {
         val request = AuthUserRequest("nonexistent@example.com", "password123")
         `when`(userRepository.getUserByEmail("nonexistent@example.com")).thenReturn(null)
 
-        val result = validator.isValid(request, mockConstraintValidatorContext())
-
-        assertTrue(result)
+        assertTrue(validator.isValid(request, mockConstraintValidatorContext()))
     }
 
     private fun mockConstraintValidatorContext(): ConstraintValidatorContext {

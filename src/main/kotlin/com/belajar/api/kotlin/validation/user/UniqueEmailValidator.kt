@@ -4,10 +4,14 @@ import com.belajar.api.kotlin.annotation.user.UniqueEmail
 import com.belajar.api.kotlin.repository.UserRepository
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 
-class UniqueEmailValidator(
-    private val userRepository: UserRepository
-) : ConstraintValidator<UniqueEmail, String> {
+@Component
+class UniqueEmailValidator: ConstraintValidator<UniqueEmail, String> {
+
+    @Autowired
+    lateinit var userRepository: UserRepository
 
     override fun isValid(value: String?, context: ConstraintValidatorContext?): Boolean {
         if (value.isNullOrBlank()) {

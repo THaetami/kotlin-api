@@ -3,6 +3,7 @@ package com.belajar.api.kotlin.service.impl
 import com.belajar.api.kotlin.entities.user.CreateUserRequest
 import com.belajar.api.kotlin.entities.user.UpdateUserRequest
 import com.belajar.api.kotlin.entities.user.UserResponse
+import com.belajar.api.kotlin.exception.NotFoundException
 import com.belajar.api.kotlin.exception.ValidationCustomException
 import com.belajar.api.kotlin.model.User
 import com.belajar.api.kotlin.repository.UserRepository

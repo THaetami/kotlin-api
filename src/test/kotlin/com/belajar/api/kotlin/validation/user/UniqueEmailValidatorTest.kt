@@ -30,7 +30,9 @@ class UniqueEmailValidatorTest {
     @BeforeAll
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        validator = UniqueEmailValidator(userRepository)
+        validator = UniqueEmailValidator()
+        validator.initialize(mockAnnotation())
+        validator.userRepository = userRepository
     }
 
     @Test

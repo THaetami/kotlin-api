@@ -5,10 +5,12 @@ import com.belajar.api.kotlin.entities.user.AuthUserRequest
 import com.belajar.api.kotlin.repository.UserRepository
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
+import org.springframework.beans.factory.annotation.Autowired
 
-class EmailPasswordMatchValidator(
-    private val userRepository: UserRepository,
-) : ConstraintValidator<EmailPasswordMatch, AuthUserRequest> {
+class EmailPasswordMatchValidator : ConstraintValidator<EmailPasswordMatch, AuthUserRequest> {
+
+    @Autowired
+    lateinit var userRepository: UserRepository
 
     lateinit var passwordPath: String
 
