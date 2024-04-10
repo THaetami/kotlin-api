@@ -3,15 +3,12 @@ package com.belajar.api.kotlin.entities.user
 import com.belajar.api.kotlin.validation.ValidationUtil
 import jakarta.validation.ConstraintViolationException
 import jakarta.validation.Validation
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestFactory
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.TestInstance
 
 
 @TestInstance(value = TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(value = MethodOrderer.OrderAnnotation::class)
 class UpdateUserRequestTest {
 
     private lateinit var validationUtil: ValidationUtil
@@ -31,48 +28,50 @@ class UpdateUserRequestTest {
     }
 
     @Test
+    @Order(1)
     fun `Test valid UpdateUserRequest`() {
         val request = updateUserRequest()
         validationUtil.validate(request)
     }
 
-//    @Test
-//    fun `Test UpdateUserRequest with blank name`() {
-//        val invalidRequest = updateUserRequest(name = "")
-//        assertThrows(ConstraintViolationException::class.java) { validationUtil.validate(invalidRequest) }
-//    }
+    @Test
+    @Order(2)
+    fun `Test UpdateUserRequest with blank name`() {
+        val invalidRequest = updateUserRequest(name = "")
+        val exception = assertThrows<ConstraintViolationException> { validationUtil.validate(invalidRequest) }
+
+        val numberOfExceptions = exception.constraintViolations.size
+
+        assertEquals(3, numberOfExceptions)
+    }
 
     @Test
+    @Order(3)
     fun `Test invalid CreateUserRequest with invalid name`() {
         val invalidRequest = updateUserRequest(name = "^&£*  ")
         assertThrows(ConstraintViolationException::class.java) { validationUtil.validate(invalidRequest) }
     }
 
-//    @Test
-//    fun `Test invalid CreateUserRequest with invalid name length`() {
-//        val invalidRequest = updateUserRequest(name = "2A ")
-//        assertThrows(ConstraintViolationException::class.java) { validationUtil.validate(invalidRequest) }
-//    }
-
     @Test
-    fun `Test UpdateUserRequest with email blank`() {
-        val request = updateUserRequest(email = "")
-        validationUtil.validate(request)
+    @Order(4)
+    fun `Test invalid CreateUserRequest with invalid name length`() {
+        val invalidRequest = updateUserRequest(name = "2A ")
+        val exception = assertThrows<ConstraintViolationException> { validationUtil.validate(invalidRequest) }
+
+        val numberOfExceptions = exception.constraintViolations.size
+
+        assertEquals(2, numberOfExceptions)
     }
 
     @Test
+    @Order(5)
     fun `Test UpdateUserRequest with email invalid`() {
         val invalidRequest = updateUserRequest(email = "invalid_email")
         assertThrows(ConstraintViolationException::class.java) { validationUtil.validate(invalidRequest) }
     }
 
     @Test
-    fun `Test UpdateUserRequest with password blank`() {
-        val request = updateUserRequest(password = "")
-        validationUtil.validate(request)
-    }
-
-    @Test
+    @Order(6)
     fun `Test UpdateUserRequest with password invalid`() {
         val invalidRequest = updateUserRequest(password = "£$12")
         assertThrows(ConstraintViolationException::class.java) { validationUtil.validate(invalidRequest) }

@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest
 
 
 @SpringBootTest
+@TestMethodOrder(value = MethodOrderer.OrderAnnotation::class)
 class CreateUserRequestTest {
 
     @Autowired
@@ -23,22 +24,58 @@ class CreateUserRequestTest {
     }
 
     @Test
+    @Order(1)
     fun `Test valid CreateUserRequest`() {
         val request = createUserRequest()
 
         validationUtil.validate(request)
     }
 
-//    @Test
-//    fun `Test invalid CreateUserRequest with blank email`() {
-//        val invalidRequest = createUserRequest(email = "  ")
-//
-//        assertThrows<ConstraintViolationException> {
-//            validationUtil.validate(invalidRequest)
-//        }
-//    }
+    @Test
+    @Order(2)
+    fun `Test invalid CreateUserRequest with blank name`() {
+        val invalidRequest = createUserRequest(name = "  ")
+        val exception = assertThrows<ConstraintViolationException> { validationUtil.validate(invalidRequest) }
+
+        val numberOfExceptions = exception.constraintViolations.size
+
+        Assertions.assertEquals(2, numberOfExceptions)
+    }
 
     @Test
+    @Order(3)
+    fun `Test invalid CreateUserRequest with invalid name`() {
+        val invalidRequest = createUserRequest(name = "^&£*  ")
+        assertThrows<ConstraintViolationException> {
+            validationUtil.validate(invalidRequest)
+        }
+    }
+
+    @Test
+    @Order(4)
+    fun `Test invalid CreateUserRequest with invalid name length`() {
+        val invalidRequest = createUserRequest(name = "22")
+        val exception = assertThrows<ConstraintViolationException> { validationUtil.validate(invalidRequest) }
+
+        val numberOfExceptions = exception.constraintViolations.size
+
+        Assertions.assertEquals(2, numberOfExceptions)
+    }
+
+    @Test
+    @Order(5)
+    fun `Test invalid CreateUserRequest with blank email`() {
+        val invalidRequest = createUserRequest(email = "  ")
+
+        val exception = assertThrows<ConstraintViolationException> { validationUtil.validate(invalidRequest) }
+
+        val numberOfExceptions = exception.constraintViolations.size
+
+        Assertions.assertEquals(3, numberOfExceptions)
+    }
+
+    @Test
+    @Order(6)
     fun `test invalid CreateUserRequest with existing email`() {
         val invalidRequest = CreateUserRequest(
             name = "Jane Doe",
@@ -51,6 +88,7 @@ class CreateUserRequestTest {
     }
 
     @Test
+    @Order(7)
     fun `Test invalid CreateUserRequest with invalid email`() {
         val invalidRequest = createUserRequest(email = "invalid_email")
         assertThrows<ConstraintViolationException> {
@@ -58,39 +96,19 @@ class CreateUserRequestTest {
         }
     }
 
-//    @Test
-//    fun `Test invalid CreateUserRequest with blank name`() {
-//        val invalidRequest = createUserRequest(name = "  ")
-//        assertThrows<ConstraintViolationException> {
-//            validationUtil.validate(invalidRequest)
-//        }
-//    }
-
     @Test
-    fun `Test invalid CreateUserRequest with invalid name`() {
-        val invalidRequest = createUserRequest(name = "^&£*  ")
-        assertThrows<ConstraintViolationException> {
-            validationUtil.validate(invalidRequest)
-        }
+    @Order(8)
+    fun `Test invalid CreateUserRequest with blank password`() {
+        val invalidRequest = createUserRequest(password = "")
+        val exception = assertThrows<ConstraintViolationException> { validationUtil.validate(invalidRequest) }
+
+        val numberOfExceptions = exception.constraintViolations.size
+
+        Assertions.assertEquals(3, numberOfExceptions)
     }
 
-//    @Test
-//    fun `Test invalid CreateUserRequest with invalid name length`() {
-//        val invalidRequest = createUserRequest(name = "22")
-//        assertThrows<ConstraintViolationException> {
-//            validationUtil.validate(invalidRequest)
-//        }
-//    }
-
-//    @Test
-//    fun `Test invalid CreateUserRequest with blank password`() {
-//        val invalidRequest = createUserRequest(password = "")
-//        assertThrows<ConstraintViolationException> {
-//            validationUtil.validate(invalidRequest)
-//        }
-//    }
-
     @Test
+    @Order(9)
     fun `Test invalid CreateUserRequest with invalid password`() {
         val invalidRequest = createUserRequest(password = "^&£*  ")
         assertThrows<ConstraintViolationException> {
@@ -98,12 +116,14 @@ class CreateUserRequestTest {
         }
     }
 
-//    @Test
-//    fun `Test invalid CreateUserRequest with invalid password length`() {
-//        val invalidRequest = createUserRequest(name = "2A")
-//        assertThrows<ConstraintViolationException> {
-//            validationUtil.validate(invalidRequest)
-//        }
-//    }
+    @Test
+    @Order(10)
+    fun `Test invalid CreateUserRequest with invalid password length`() {
+        val invalidRequest = createUserRequest(password = "2A")
+
+        assertThrows<ConstraintViolationException> {
+            validationUtil.validate(invalidRequest)
+        }
+    }
 
 }

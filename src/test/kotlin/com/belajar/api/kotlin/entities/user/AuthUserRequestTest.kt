@@ -47,12 +47,15 @@ class AuthUserRequestTest {
         assertThrows<ConstraintViolationException> { validationUtil.validate(userRequest) }
     }
 
+    @Test
+    fun `Test invalid CreateUserRequest with blank email`() {
+        val user = authUserRequest("", "validPassword")
+        val exception = assertThrows<ConstraintViolationException> { validationUtil.validate(user) }
 
-//    @Test
-//    fun `Test invalid CreateUserRequest with blank email`() {
-//        val user = authUserRequest("", "validPassword")
-//        assertThrows<ConstraintViolationException> { validationUtil.validate(user) }
-//    }
+        val numberOfExceptions = exception.constraintViolations.size
+
+        assertEquals(2, numberOfExceptions)
+    }
 
     @Test
     fun `Test invalid CreateUserRequest with invalid email`() {
