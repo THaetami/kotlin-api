@@ -2,38 +2,43 @@ package com.belajar.api.kotlin.service.impl
 
 import com.belajar.api.kotlin.entities.user.AuthUserRequest
 import com.belajar.api.kotlin.exception.NotFoundException
-import com.belajar.api.kotlin.exception.UnauthorizedException
 import com.belajar.api.kotlin.model.User
 import com.belajar.api.kotlin.repository.UserRepository
 import com.belajar.api.kotlin.utils.AuthUtil
 import com.belajar.api.kotlin.validation.ValidationUtil
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletResponse
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
-import java.util.*
 
 class AuthServiceImplTest {
 
-    private val userRepository: UserRepository = mock(UserRepository::class.java)
-    private val validationUtil: ValidationUtil = mock(ValidationUtil::class.java)
-    private val response: HttpServletResponse = mock(HttpServletResponse::class.java)
-    private val authUtil: AuthUtil = mock(AuthUtil::class.java)
-    private val authService = AuthServiceImpl(userRepository, validationUtil, authUtil)
+    private lateinit var userRepository: UserRepository
+    private lateinit var validationUtil: ValidationUtil
+    private lateinit var response: HttpServletResponse
+    private lateinit var authUtil: AuthUtil
+    private lateinit var authService: AuthServiceImpl
 
     val email = "test@example.com"
     private val password = "validPassword"
     private val authUserRequest = AuthUserRequest(email, password)
 
+    @BeforeEach
+    fun setUp() {
+        userRepository = mock(UserRepository::class.java)
+        validationUtil = mock(ValidationUtil::class.java)
+        response = mock(HttpServletResponse::class.java)
+        authUtil = mock(AuthUtil::class.java)
+        authService = AuthServiceImpl(userRepository, validationUtil, authUtil)
+    }
+
     @Test
     fun `Test authenticate with valid user`() {
         // Arrange
-        val user = User()
-        user.id = 1
+        val user = User().apply { id = 1 }
+
         `when`(userRepository.getUserByEmail(email)).thenReturn(user)
         `when`(authUtil.generateJwt(user.id!!)).thenReturn("testJwt")
 

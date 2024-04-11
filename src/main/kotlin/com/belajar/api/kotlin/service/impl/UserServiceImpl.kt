@@ -22,23 +22,11 @@ class UserServiceImpl(
 
     override fun create(createUserRequest: CreateUserRequest): UserResponse {
         validationUtil.validate(createUserRequest)
-
-        val user = User().apply {
-            email = createUserRequest.email!!
-            name = createUserRequest.name!!
-            password = createUserRequest.password!!
-            createdAt = Date()
-        }
+        val user = createUserFromRequest(createUserRequest)
 
         try {
             userRepository.save(user)
-
-            return UserResponse(
-                id = user.id,
-                name = user.name,
-                createdAt = user.createdAt!!,
-                updatedAt = user.updatedAt
-            )
+            return createUserResponse(user)
         } catch (e: Exception) {
             throw RuntimeException("Failed to create user: ${e.message}")
         }
@@ -49,13 +37,7 @@ class UserServiceImpl(
 
         try {
             val user = userRepository.getReferenceById(userId)
-
-            return UserResponse(
-                id = user.id,
-                name = user.name,
-                createdAt = user.createdAt,
-                updatedAt = user.updatedAt
-            )
+            return createUserResponse(user)
         } catch (e: Exception) {
             throw RuntimeException("Failed to retrieve user: ${e.message}")
         }
@@ -63,40 +45,53 @@ class UserServiceImpl(
 
     override fun update(jwt: String?, updateUserRequest: UpdateUserRequest): UserResponse {
         val userId = authUtil.getUserIdFromJwt(jwt)
-
         validationUtil.validate(updateUserRequest)
 
         val user = userRepository.getReferenceById(userId)
-
-        updateEmailIfChanged(updateUserRequest, user, userRepository)
-
-        user.apply {
-            name = updateUserRequest.name
-            password = updateUserRequest.password!!
-            updatedAt = Date()
-        }
+        updateUserData(updateUserRequest, user)
 
         try {
             userRepository.save(user)
-
-            return UserResponse(
-                id = user.id,
-                name = user.name,
-                createdAt = user.createdAt!!,
-                updatedAt = user.updatedAt
-            )
+            return createUserResponse(user)
         } catch (e: Exception) {
             throw RuntimeException("Failed to updated user: ${e.message}")
         }
     }
 
-    private fun updateEmailIfChanged(updateUserRequest: UpdateUserRequest, user: User, userRepository: UserRepository) {
-        if (!updateUserRequest.email.isNullOrBlank() && updateUserRequest.email != user.email) {
-            if (userRepository.existsByEmail(updateUserRequest.email)) {
+    private fun createUserFromRequest(createUserRequest: CreateUserRequest): User {
+        return User().apply {
+            email = createUserRequest.email!!
+            name = createUserRequest.name!!
+            password = createUserRequest.password!!
+            createdAt = Date()
+        }
+    }
+
+    private fun updateUserData(updateUserRequest: UpdateUserRequest, user: User) {
+        user.apply {
+            name = updateUserRequest.name
+            password = updateUserRequest.password!!
+            updatedAt = Date()
+        }
+        updateEmailIfChanged(updateUserRequest.email, user)
+    }
+
+    private fun updateEmailIfChanged(email: String?, user: User) {
+        if (!email.isNullOrBlank() && email != user.email) {
+            if (userRepository.existsByEmail(email)) {
                 throw ValidationCustomException("Email has already been taken", "email")
             }
-            user.email = updateUserRequest.email
+            user.email = email
         }
+    }
+
+    private fun createUserResponse(user: User): UserResponse {
+        return UserResponse(
+            id = user.id,
+            name = user.name,
+            createdAt = user.createdAt!!,
+            updatedAt = user.updatedAt
+        )
     }
 
 }
