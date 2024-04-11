@@ -14,9 +14,8 @@ import org.springframework.stereotype.Service
 class AuthServiceImpl(
     private val userRepository: UserRepository,
     val validationUtil: ValidationUtil,
+    val authUtil: AuthUtil
 ): AuthService {
-
-    val authUtil = AuthUtil()
 
     override fun authenticate(authUserRequest: AuthUserRequest, response: HttpServletResponse) {
         validationUtil.validate(authUserRequest)

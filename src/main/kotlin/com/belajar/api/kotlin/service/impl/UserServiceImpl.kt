@@ -3,7 +3,6 @@ package com.belajar.api.kotlin.service.impl
 import com.belajar.api.kotlin.entities.user.CreateUserRequest
 import com.belajar.api.kotlin.entities.user.UpdateUserRequest
 import com.belajar.api.kotlin.entities.user.UserResponse
-import com.belajar.api.kotlin.exception.NotFoundException
 import com.belajar.api.kotlin.exception.ValidationCustomException
 import com.belajar.api.kotlin.model.User
 import com.belajar.api.kotlin.repository.UserRepository
@@ -18,9 +17,8 @@ import com.belajar.api.kotlin.utils.AuthUtil
 class UserServiceImpl(
     private val userRepository: UserRepository,
     val validationUtil: ValidationUtil,
+    val authUtil: AuthUtil
 ): UserService {
-
-    val authUtil = AuthUtil()
 
     override fun create(createUserRequest: CreateUserRequest): UserResponse {
         validationUtil.validate(createUserRequest)
@@ -93,13 +91,11 @@ class UserServiceImpl(
     }
 
     private fun updateEmailIfChanged(updateUserRequest: UpdateUserRequest, user: User, userRepository: UserRepository) {
-        if (!updateUserRequest.email.isNullOrBlank()) {
-            if (updateUserRequest.email != user.email) {
-                if (userRepository.existsByEmail(updateUserRequest.email)) {
-                    throw ValidationCustomException("Email has already been taken", "email")
-                }
-                user.email = updateUserRequest.email
+        if (!updateUserRequest.email.isNullOrBlank() && updateUserRequest.email != user.email) {
+            if (userRepository.existsByEmail(updateUserRequest.email)) {
+                throw ValidationCustomException("Email has already been taken", "email")
             }
+            user.email = updateUserRequest.email
         }
     }
 
