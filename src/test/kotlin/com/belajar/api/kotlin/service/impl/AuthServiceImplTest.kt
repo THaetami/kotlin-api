@@ -11,14 +11,26 @@ import jakarta.servlet.http.HttpServletResponse
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.mockito.InjectMocks
+import org.mockito.Mock
 import org.mockito.Mockito.*
+import org.mockito.MockitoAnnotations
 
 class AuthServiceImplTest {
 
+    @Mock
     private lateinit var userRepository: UserRepository
+
+    @Mock
     private lateinit var validationUtil: ValidationUtil
+
+    @Mock
     private lateinit var response: HttpServletResponse
+
+    @Mock
     private lateinit var authUtil: AuthUtil
+
+    @InjectMocks
     private lateinit var authService: AuthServiceImpl
 
     val email = "test@example.com"
@@ -27,15 +39,11 @@ class AuthServiceImplTest {
 
     @BeforeEach
     fun setUp() {
-        userRepository = mock(UserRepository::class.java)
-        validationUtil = mock(ValidationUtil::class.java)
-        response = mock(HttpServletResponse::class.java)
-        authUtil = mock(AuthUtil::class.java)
-        authService = AuthServiceImpl(userRepository, validationUtil, authUtil)
+        MockitoAnnotations.openMocks(this)
     }
 
     @Test
-    fun `Test authenticate with valid user`() {
+    fun `Test authenticate() with valid user`() {
         // Arrange
         val user = User().apply { id = 1 }
 
@@ -53,7 +61,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    fun `Test authenticate with invalid user`() {
+    fun `Test authenticate() with invalid user`() {
         // Arrange
         `when`(userRepository.getUserByEmail(email)).thenReturn(null)
 
@@ -67,7 +75,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    fun `Test unauthenticate with valid jwt`() {
+    fun `Test unauthenticate() with valid jwt`() {
         `when`(authUtil.getUserIdFromJwt(anyString())).thenReturn(1)
 
         authService.unauthenticate("valid_jwt", response)
@@ -76,7 +84,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    fun `Test unauthenticate with null jwt`() {
+    fun `Test unauthenticate() with null jwt`() {
         `when`(authUtil.getUserIdFromJwt(null)).thenReturn(0)
 
         authService.unauthenticate(null, response)
@@ -85,7 +93,7 @@ class AuthServiceImplTest {
     }
 
     @Test
-    fun `Test unauthenticate with invalid jwt`() {
+    fun `Test unauthenticate() with invalid jwt`() {
         `when`(authUtil.getUserIdFromJwt("invalid_jwt")).thenReturn(0)
 
         authService.unauthenticate("invalid_jwt", response)

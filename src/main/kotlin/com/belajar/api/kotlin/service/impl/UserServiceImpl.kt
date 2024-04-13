@@ -11,6 +11,8 @@ import com.belajar.api.kotlin.validation.ValidationUtil
 import org.springframework.stereotype.Service
 import java.util.*
 import com.belajar.api.kotlin.utils.AuthUtil
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 
 
 @Service
@@ -28,8 +30,9 @@ class UserServiceImpl(
             userRepository.save(user)
             return createUserResponse(user)
         } catch (e: Exception) {
-            throw RuntimeException("Failed to create user: ${e.message}")
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create user: ${e.message}")
         }
+
     }
 
     override fun get(jwt: String?): UserResponse {
@@ -39,7 +42,7 @@ class UserServiceImpl(
             val user = userRepository.getReferenceById(userId)
             return createUserResponse(user)
         } catch (e: Exception) {
-            throw RuntimeException("Failed to retrieve user: ${e.message}")
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve user: ${e.message}")
         }
     }
 
@@ -54,14 +57,14 @@ class UserServiceImpl(
             userRepository.save(user)
             return createUserResponse(user)
         } catch (e: Exception) {
-            throw RuntimeException("Failed to updated user: ${e.message}")
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to updated user: ${e.message}")
         }
     }
 
-    private fun createUserFromRequest(createUserRequest: CreateUserRequest): User {
+    internal fun createUserFromRequest(createUserRequest: CreateUserRequest): User {
         return User().apply {
-            email = createUserRequest.email!!
             name = createUserRequest.name!!
+            email = createUserRequest.email!!
             password = createUserRequest.password!!
             createdAt = Date()
         }
