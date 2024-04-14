@@ -42,6 +42,14 @@ class UserServiceImplTest {
     private val createUserRequest = CreateUserRequest(name, email, password)
     private val updateUserRequest = UpdateUserRequest(name, email, password)
 
+    val user = User().apply {
+        id = userId
+        name = "Old name"
+        email = "old_email@example.com"
+        password = "old_password"
+        createdAt = Date()
+    }
+
     @BeforeEach
     fun setUp() {
         MockitoAnnotations.openMocks(this)
@@ -80,11 +88,6 @@ class UserServiceImplTest {
 
     @Test
     fun `Test get user success`() {
-        val user = User().apply {
-            id = userId
-            name = "tami"
-            createdAt = Date()
-        }
         val expectedResponse = UserResponse(user.id, user.name, user.createdAt, user.updatedAt)
 
         `when`(authUtil.getUserIdFromJwt(tokenJwt)).thenReturn(userId)
@@ -135,13 +138,6 @@ class UserServiceImplTest {
 
     @Test
     fun `Test update user success`() {
-        val user = User().apply {
-            id = userId
-            name = "Old name"
-            email = "old_email@example.com"
-            password = "old_password"
-            createdAt = Date()
-        }
 
         `when`(authUtil.getUserIdFromJwt(tokenJwt)).thenReturn(userId)
         `when`(userRepository.getReferenceById(userId)).thenReturn(user)
@@ -160,7 +156,7 @@ class UserServiceImplTest {
         assertEquals(user.id, response.id)
         assertEquals(updateUserRequest.name, response.name)
         assertEquals(user.email, updateUserRequest.email)
-//        assertEquals(user.password, updateUserRequest.password)
+        assertTrue(user.comparePassword(updateUserRequest.password!!))
         assertEquals(user.createdAt, response.createdAt)
         assertNotNull(user.updatedAt)
         assertNotNull(response.updatedAt)
@@ -168,13 +164,6 @@ class UserServiceImplTest {
 
     @Test
     fun `Test update user with email exists`() {
-        val user = User().apply {
-            id = userId
-            name = "Old name"
-            email = "old_email@example.com"
-            password = "old_password"
-            createdAt = Date()
-        }
 
         `when`(authUtil.getUserIdFromJwt(tokenJwt)).thenReturn(userId)
         `when`(userRepository.getReferenceById(userId)).thenReturn(user)
@@ -192,13 +181,6 @@ class UserServiceImplTest {
 
     @Test
     fun `Test update user failed`() {
-        val user = User().apply {
-            id = userId
-            name = "Old name"
-            email = "old_email@example.com"
-            password = "old_password"
-            createdAt = Date()
-        }
 
         `when`(authUtil.getUserIdFromJwt(tokenJwt)).thenReturn(userId)
         `when`(userRepository.getReferenceById(userId)).thenReturn(user)

@@ -29,7 +29,6 @@ class ExistingEmailValidatorTest {
     @BeforeAll
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        validator = ExistingEmailValidator(userRepository)
     }
 
     @Test

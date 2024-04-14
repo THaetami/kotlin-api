@@ -34,7 +34,7 @@ class User {
     @Column(name = "updated_at")
     var updatedAt: Date? = null
 
-    fun comparePassword(password: String): Boolean {
+    internal fun comparePassword(password: String): Boolean {
         return BCryptPasswordEncoder().matches(password, this.password)
     }
 
