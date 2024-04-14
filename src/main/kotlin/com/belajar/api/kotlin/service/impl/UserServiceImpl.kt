@@ -61,22 +61,19 @@ class UserServiceImpl(
         }
     }
 
-    internal fun createUserFromRequest(createUserRequest: CreateUserRequest): User {
-        return User().apply {
-            name = createUserRequest.name!!
-            email = createUserRequest.email!!
-            password = createUserRequest.password!!
-            createdAt = Date()
-        }
-    }
-
     private fun updateUserData(updateUserRequest: UpdateUserRequest, user: User) {
         user.apply {
             name = updateUserRequest.name
-            password = updateUserRequest.password!!
             updatedAt = Date()
         }
+        updatePassIfNotNull(updateUserRequest.password, user)
         updateEmailIfChanged(updateUserRequest.email, user)
+    }
+
+    private fun updatePassIfNotNull(password: String?, user: User) {
+        if (!password.isNullOrBlank()) {
+            user.password = password
+        }
     }
 
     private fun updateEmailIfChanged(email: String?, user: User) {
@@ -95,6 +92,15 @@ class UserServiceImpl(
             createdAt = user.createdAt!!,
             updatedAt = user.updatedAt
         )
+    }
+
+    internal fun createUserFromRequest(createUserRequest: CreateUserRequest): User {
+        return User().apply {
+            name = createUserRequest.name!!
+            email = createUserRequest.email!!
+            password = createUserRequest.password!!
+            createdAt = Date()
+        }
     }
 
 }

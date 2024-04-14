@@ -3,12 +3,11 @@ package com.belajar.api.kotlin.service.impl
 import com.belajar.api.kotlin.entities.user.CreateUserRequest
 import com.belajar.api.kotlin.entities.user.UpdateUserRequest
 import com.belajar.api.kotlin.entities.user.UserResponse
-import com.belajar.api.kotlin.exception.UnauthorizedException
+import com.belajar.api.kotlin.exception.ValidationCustomException
 import com.belajar.api.kotlin.model.User
 import com.belajar.api.kotlin.repository.UserRepository
 import com.belajar.api.kotlin.utils.AuthUtil
 import com.belajar.api.kotlin.validation.ValidationUtil
-import jakarta.validation.ConstraintViolationException
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -35,10 +34,8 @@ class UserServiceImplTest {
     @InjectMocks
     private lateinit var userService: UserServiceImpl
 
-    @Mock
-    private lateinit var userResponse: UserResponse
-
-
+    private val tokenJwt = "valid_token"
+    private val userId = 1
     private val name = "Jono"
     private val email = "test@example.com"
     private val password = "123pas"
@@ -83,8 +80,6 @@ class UserServiceImplTest {
 
     @Test
     fun `Test get user success`() {
-        val userId = 1
-        val tokenJwt = "token_jwt"
         val user = User().apply {
             id = userId
             name = "tami"
@@ -104,10 +99,23 @@ class UserServiceImplTest {
     }
 
     @Test
-    fun `Test get user with null jwt`() {
-        `when`(authUtil.getUserIdFromJwt(null)).thenReturn(0)
+    fun `Test get user failed`() {
+        `when`(authUtil.getUserIdFromJwt(tokenJwt)).thenReturn(userId)
+        `when`(userRepository.getReferenceById(userId)).thenThrow(RuntimeException("Failed to crate user"))
 
         assertThrows<ResponseStatusException> {
+            userService.get(tokenJwt)
+        }
+
+        verify(authUtil).getUserIdFromJwt(tokenJwt)
+        verify(userRepository).getReferenceById(userId)
+    }
+
+    @Test
+    fun `Test get user with null jwt`() {
+        `when`(authUtil.getUserIdFromJwt(null)).thenThrow(RuntimeException())
+
+        assertThrows<RuntimeException> {
             userService.get(null)
         }
 
@@ -116,10 +124,115 @@ class UserServiceImplTest {
 
     @Test
     fun `Test get user with invalid jwt`() {
-        `when`(authUtil.getUserIdFromJwt("invalid_jwt")).thenReturn(0)
+        `when`(authUtil.getUserIdFromJwt("invalid_jwt")).thenThrow(RuntimeException())
+
+        assertThrows<RuntimeException> {
+            userService.get("invalid_jwt")
+        }
+
+        verify(authUtil).getUserIdFromJwt("invalid_jwt")
+    }
+
+    @Test
+    fun `Test update user success`() {
+        val user = User().apply {
+            id = userId
+            name = "Old name"
+            email = "old_email@example.com"
+            password = "old_password"
+            createdAt = Date()
+        }
+
+        `when`(authUtil.getUserIdFromJwt(tokenJwt)).thenReturn(userId)
+        `when`(userRepository.getReferenceById(userId)).thenReturn(user)
+        `when`(userRepository.existsByEmail(updateUserRequest.email!!)).thenReturn(false)
+        `when`(userRepository.save(user)).thenReturn(user)
+
+        val response = userService.update(tokenJwt, updateUserRequest)
+
+        verify(validationUtil).validate(updateUserRequest)
+        verify(authUtil).getUserIdFromJwt(tokenJwt)
+        verify(userRepository).getReferenceById(userId)
+        verify(userRepository).existsByEmail(updateUserRequest.email!!)
+        verify(userRepository).save(user)
+
+
+        assertEquals(user.id, response.id)
+        assertEquals(updateUserRequest.name, response.name)
+        assertEquals(user.email, updateUserRequest.email)
+//        assertEquals(user.password, updateUserRequest.password)
+        assertEquals(user.createdAt, response.createdAt)
+        assertNotNull(user.updatedAt)
+        assertNotNull(response.updatedAt)
+    }
+
+    @Test
+    fun `Test update user with email exists`() {
+        val user = User().apply {
+            id = userId
+            name = "Old name"
+            email = "old_email@example.com"
+            password = "old_password"
+            createdAt = Date()
+        }
+
+        `when`(authUtil.getUserIdFromJwt(tokenJwt)).thenReturn(userId)
+        `when`(userRepository.getReferenceById(userId)).thenReturn(user)
+        `when`(userRepository.existsByEmail(updateUserRequest.email!!)).thenReturn(true)
+
+        assertThrows<ValidationCustomException> {
+            userService.update(tokenJwt, updateUserRequest)
+        }
+
+        verify(authUtil).getUserIdFromJwt(tokenJwt)
+        verify(validationUtil).validate(updateUserRequest)
+        verify(userRepository).getReferenceById(userId)
+        verify(userRepository).existsByEmail(updateUserRequest.email!!)
+    }
+
+    @Test
+    fun `Test update user failed`() {
+        val user = User().apply {
+            id = userId
+            name = "Old name"
+            email = "old_email@example.com"
+            password = "old_password"
+            createdAt = Date()
+        }
+
+        `when`(authUtil.getUserIdFromJwt(tokenJwt)).thenReturn(userId)
+        `when`(userRepository.getReferenceById(userId)).thenReturn(user)
+        `when`(userRepository.existsByEmail(updateUserRequest.email!!)).thenReturn(false)
+        `when`(userRepository.save(user)).thenThrow(RuntimeException("Failed to updated user"))
 
         assertThrows<ResponseStatusException> {
-            userService.get("invalid_jwt")
+            userService.update(tokenJwt, updateUserRequest)
+        }
+
+        verify(authUtil).getUserIdFromJwt(tokenJwt)
+        verify(validationUtil).validate(updateUserRequest)
+        verify(userRepository).getReferenceById(userId)
+        verify(userRepository).existsByEmail(updateUserRequest.email!!)
+        verify(userRepository).save(user)
+    }
+
+    @Test
+    fun `Test update user with null jwt`() {
+        `when`(authUtil.getUserIdFromJwt(null)).thenThrow(RuntimeException())
+
+        assertThrows<RuntimeException> {
+            userService.update(null, updateUserRequest)
+        }
+
+        verify(authUtil).getUserIdFromJwt(null)
+    }
+
+    @Test
+    fun `Test update user with invalid jwt`() {
+        `when`(authUtil.getUserIdFromJwt("invalid_jwt")).thenThrow(RuntimeException())
+
+        assertThrows<RuntimeException> {
+            userService.update("invalid_jwt", updateUserRequest)
         }
 
         verify(authUtil).getUserIdFromJwt("invalid_jwt")
