@@ -57,7 +57,10 @@ class AuthServiceImplTest {
         verify(validationUtil).validate(authUserRequest)
         verify(userRepository).getUserByEmail(email)
         verify(authUtil).generateJwt(user.id!!)
-        verify(response).addCookie(any(Cookie::class.java))
+        verify(response).addCookie(argThat {
+            it.isHttpOnly && it.name == "jwt" && it.value == "testJwt"
+        })
+
     }
 
     @Test

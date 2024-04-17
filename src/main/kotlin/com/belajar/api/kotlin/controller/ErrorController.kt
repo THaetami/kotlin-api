@@ -14,57 +14,32 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 class ErrorController {
 
     @ExceptionHandler(value = [ConstraintViolationException::class])
-    fun validationHandler(constraintViolationException: ConstraintViolationException): ResponseEntity<WebResponse<Any>> {
-        val errorDetails = constraintViolationException.constraintViolations.map { violation ->
-            mapOf(
-                "path" to violation.propertyPath.toString(),
-                "message" to violation.message
-            )
-        }
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(
-            WebResponse(
-                code = HttpStatus.UNPROCESSABLE_ENTITY.value(),
-                status = HttpStatus.UNPROCESSABLE_ENTITY.name,
-                data = errorDetails
-            )
-        )
-    }
+    fun handleConstraintViolationException( exception: ConstraintViolationException): ResponseEntity<WebResponse<Any>> =
+        createErrorResponse( HttpStatus.UNPROCESSABLE_ENTITY, exception.constraintViolations.map { violation ->
+            mapOf("path" to violation.propertyPath.toString(), "message" to violation.message)
+        })
 
     @ExceptionHandler(value = [NotFoundException::class])
-    fun notFound(notFoundException: NotFoundException): ResponseEntity<WebResponse<Any>> {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-            WebResponse(
-                code = HttpStatus.NOT_FOUND.value(),
-                status = HttpStatus.NOT_FOUND.name,
-                data = notFoundException.message ?: "Not Found"
-            )
-        )
-    }
+    fun handleNotFoundException(exception: NotFoundException): ResponseEntity<WebResponse<Any>> =
+        createErrorResponse(HttpStatus.NOT_FOUND, exception.message ?: "Not Found")
 
     @ExceptionHandler(value = [UnauthorizedException::class])
-    fun unauthorized(unauthorizedException: UnauthorizedException): ResponseEntity<WebResponse<String>> {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
-            WebResponse(
-                code = HttpStatus.UNAUTHORIZED.value(),
-                status = HttpStatus.UNAUTHORIZED.name,
-                data = unauthorizedException.message ?: ""
-            )
-        )
-    }
+    fun handleUnauthorizedException( exception: UnauthorizedException ): ResponseEntity<WebResponse<String>> =
+        createErrorResponse(HttpStatus.UNAUTHORIZED, exception.message ?: "")
 
     @ExceptionHandler(value = [ValidationCustomException::class])
-    fun validationCustom(validationCustomException: ValidationCustomException): ResponseEntity<WebResponse<Any>> {
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(
+    fun handleValidationCustomException( exception: ValidationCustomException ): ResponseEntity<WebResponse<Any>> =
+        createErrorResponse( HttpStatus.UNPROCESSABLE_ENTITY, listOf(
+            mapOf("path" to exception.path, "message" to exception.message)
+        ))
+
+    private fun <T> createErrorResponse( status: HttpStatus, data: T ): ResponseEntity<WebResponse<T>> =
+        ResponseEntity.status(status).body(
             WebResponse(
-                code = HttpStatus.UNPROCESSABLE_ENTITY.value(),
-                status = HttpStatus.UNPROCESSABLE_ENTITY.name,
-                data = arrayOf(
-                    mapOf(
-                        "path" to validationCustomException.path,
-                        "message" to validationCustomException.message
-                    )
-                )
+                code = status.value(),
+                status = status.name,
+                data = data
             )
         )
-    }
+
 }
