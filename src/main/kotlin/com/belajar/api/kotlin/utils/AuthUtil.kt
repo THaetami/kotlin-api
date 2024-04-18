@@ -6,14 +6,16 @@ import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.stereotype.Component
 import java.util.*
 import javax.crypto.SecretKey
 
+@Component
 class AuthUtil {
 
     private val secret = "4bb6d1dfbafb64a681139d1586b6f1160d18159afd57c8c79136d7490630407c"
 
-    private fun getKey(): SecretKey {
+    internal fun getKey(): SecretKey {
         val keyBytes = Decoders.BASE64URL.decode(secret)
         return Keys.hmacShaKeyFor(keyBytes)
     }

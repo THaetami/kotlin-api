@@ -11,38 +11,28 @@ import com.belajar.api.kotlin.validation.ValidationUtil
 import org.springframework.stereotype.Service
 import java.util.*
 import com.belajar.api.kotlin.utils.AuthUtil
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 
 
 @Service
 class UserServiceImpl(
     private val userRepository: UserRepository,
     val validationUtil: ValidationUtil,
+    val authUtil: AuthUtil
 ): UserService {
-
-    val authUtil = AuthUtil()
 
     override fun create(createUserRequest: CreateUserRequest): UserResponse {
         validationUtil.validate(createUserRequest)
-
-        val user = User()
-
-        user.name = createUserRequest.name!!
-        user.email = createUserRequest.email!!
-        user.password = createUserRequest.password!!
-        user.createdAt = Date()
+        val user = createUserFromRequest(createUserRequest)
 
         try {
             userRepository.save(user)
-
-            return UserResponse(
-                id = user.id,
-                name = user.name,
-                createdAt = user.createdAt!!,
-                updatedAt = user.updatedAt
-            )
+            return createUserResponse(user)
         } catch (e: Exception) {
-            throw RuntimeException("Failed to create user: ${e.message}")
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to create user: ${e.message}")
         }
+
     }
 
     override fun get(jwt: String?): UserResponse {
@@ -50,49 +40,66 @@ class UserServiceImpl(
 
         try {
             val user = userRepository.getReferenceById(userId)
-
-            return UserResponse(
-                id = user.id,
-                name = user.name,
-                createdAt = user.createdAt,
-                updatedAt = user.updatedAt
-            )
+            return createUserResponse(user)
         } catch (e: Exception) {
-            throw RuntimeException("Failed to retrieve user: ${e.message}")
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve user: ${e.message}")
         }
     }
 
     override fun update(jwt: String?, updateUserRequest: UpdateUserRequest): UserResponse {
         val userId = authUtil.getUserIdFromJwt(jwt)
         validationUtil.validate(updateUserRequest)
+
         val user = userRepository.getReferenceById(userId)
-
-        if (!updateUserRequest.email.isNullOrBlank()) {
-            if (updateUserRequest.email != user.email) {
-                if (userRepository.existsByEmail(updateUserRequest.email)) {
-                    throw ValidationCustomException("Email has already been taken", "email")
-                }
-                user.email = updateUserRequest.email
-            }
-        }
-
-        user.apply {
-            name = updateUserRequest.name
-            password = updateUserRequest.password!!
-            updatedAt = Date()
-        }
+        updateUserData(updateUserRequest, user)
 
         try {
             userRepository.save(user)
-
-            return UserResponse(
-                id = user.id,
-                name = user.name,
-                createdAt = user.createdAt!!,
-                updatedAt = user.updatedAt
-            )
+            return createUserResponse(user)
         } catch (e: Exception) {
-            throw RuntimeException("Failed to updated user: ${e.message}")
+            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to updated user: ${e.message}")
+        }
+    }
+
+    private fun updateUserData(updateUserRequest: UpdateUserRequest, user: User) {
+        user.apply {
+            name = updateUserRequest.name
+            updatedAt = Date()
+        }
+        updatePassIfNotNull(updateUserRequest.password, user)
+        updateEmailIfChanged(updateUserRequest.email, user)
+    }
+
+    private fun updatePassIfNotNull(password: String?, user: User) {
+        if (!password.isNullOrBlank()) {
+            user.password = password
+        }
+    }
+
+    private fun updateEmailIfChanged(email: String?, user: User) {
+        if (!email.isNullOrBlank() && email != user.email) {
+            if (userRepository.existsByEmail(email)) {
+                throw ValidationCustomException("Email has already been taken", "email")
+            }
+            user.email = email
+        }
+    }
+
+    private fun createUserResponse(user: User): UserResponse {
+        return UserResponse(
+            id = user.id,
+            name = user.name,
+            createdAt = user.createdAt!!,
+            updatedAt = user.updatedAt
+        )
+    }
+
+    internal fun createUserFromRequest(createUserRequest: CreateUserRequest): User {
+        return User().apply {
+            name = createUserRequest.name!!
+            email = createUserRequest.email!!
+            password = createUserRequest.password!!
+            createdAt = Date()
         }
     }
 

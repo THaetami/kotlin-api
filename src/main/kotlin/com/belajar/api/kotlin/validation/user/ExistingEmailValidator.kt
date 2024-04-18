@@ -11,10 +11,6 @@ class ExistingEmailValidator : ConstraintValidator<ExistingEmail, String> {
     @Autowired
     private lateinit var userRepository: UserRepository
 
-    override fun initialize(constraintAnnotation: ExistingEmail) {
-        super.initialize(constraintAnnotation)
-    }
-
     override fun isValid(value: String?, context: ConstraintValidatorContext?): Boolean {
         if (value.isNullOrBlank()) {
             return false

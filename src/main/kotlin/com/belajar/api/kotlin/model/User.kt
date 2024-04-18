@@ -22,7 +22,7 @@ class User {
     @Column(name = "password")
     var password = ""
         @JsonIgnore
-        get() = field
+        get
         set(value) {
             val passwordEncoder = BCryptPasswordEncoder()
             field = passwordEncoder.encode(value)
