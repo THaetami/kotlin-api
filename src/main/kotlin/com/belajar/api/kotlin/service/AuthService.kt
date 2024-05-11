@@ -1,9 +1,15 @@
 package com.belajar.api.kotlin.service
 
-import com.belajar.api.kotlin.entities.user.AuthUserRequest
-import jakarta.servlet.http.HttpServletResponse
+import com.belajar.api.kotlin.entities.user.LoginRequest
+import com.belajar.api.kotlin.entities.user.LoginResponse
+import com.belajar.api.kotlin.entities.user.RegisterRequest
+import com.belajar.api.kotlin.entities.user.RegisterResponse
 
 interface AuthService {
-    fun authenticate(authUserRequest: AuthUserRequest, response: HttpServletResponse)
-    fun unauthenticate(jwt: String?, response: HttpServletResponse)
+    fun registerUser(request: RegisterRequest): RegisterResponse
+
+    fun login(request: LoginRequest): LoginResponse
+
+    fun registerAdmin(request: RegisterRequest): RegisterResponse
+
 }

@@ -1,20 +1,22 @@
 package com.belajar.api.kotlin.validation.user
 
-import com.belajar.api.kotlin.annotation.user.ExistingEmail
-import com.belajar.api.kotlin.repository.UserRepository
+import com.belajar.api.kotlin.annotation.user.UniqueUsername
+import com.belajar.api.kotlin.repository.UserAccountRepository
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 
-class ExistingEmailValidator : ConstraintValidator<ExistingEmail, String> {
+@Component
+class UniqueUsernameValidator: ConstraintValidator<UniqueUsername, String> {
 
     @Autowired
-    private lateinit var userRepository: UserRepository
-
+    lateinit var userAccountRepository: UserAccountRepository
     override fun isValid(value: String?, context: ConstraintValidatorContext?): Boolean {
         if (value.isNullOrBlank()) {
             return false
         }
-        return userRepository.existsByEmail(value)
+        return !userAccountRepository.existsByUsername(value)
     }
+
 }

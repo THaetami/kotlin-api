@@ -9,7 +9,7 @@ class PassIfNotBlankValidator : ConstraintValidator<PassIfNotBlank, String> {
     override fun isValid(value: String?, context: ConstraintValidatorContext?): Boolean {
         if (!value.isNullOrBlank()) {
             val regex = Regex("^[a-zA-Z0-9]+\$")
-            return regex.matches(value) && value.length in 4..6
+            return regex.matches(value) && value.length in 4..8
         }
 
         return true

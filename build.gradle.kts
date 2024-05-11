@@ -31,6 +31,8 @@ dependencies {
 	testImplementation("org.springframework.security:spring-security-test")
 	implementation("io.jsonwebtoken:jjwt:0.12.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
+	runtimeOnly("org.springframework.boot:spring-boot-devtools")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 }
 
 tasks.withType<KotlinCompile> {

@@ -1,6 +1,7 @@
 package com.belajar.api.kotlin.controller
 
 import com.belajar.api.kotlin.entities.WebResponse
+import com.belajar.api.kotlin.exception.ForbiddenException
 import com.belajar.api.kotlin.exception.NotFoundException
 import com.belajar.api.kotlin.exception.UnauthorizedException
 import com.belajar.api.kotlin.exception.ValidationCustomException
@@ -26,6 +27,10 @@ class ErrorController {
     @ExceptionHandler(value = [UnauthorizedException::class])
     fun handleUnauthorizedException( exception: UnauthorizedException ): ResponseEntity<WebResponse<String>> =
         createErrorResponse(HttpStatus.UNAUTHORIZED, exception.message ?: "")
+
+    @ExceptionHandler(value = [ForbiddenException::class])
+    fun handleForbiddenException( exception: ForbiddenException ): ResponseEntity<WebResponse<String>> =
+        createErrorResponse(HttpStatus.FORBIDDEN, exception.message ?: "")
 
     @ExceptionHandler(value = [ValidationCustomException::class])
     fun handleValidationCustomException( exception: ValidationCustomException ): ResponseEntity<WebResponse<Any>> =

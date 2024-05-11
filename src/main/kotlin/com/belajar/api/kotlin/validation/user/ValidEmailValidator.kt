@@ -10,7 +10,6 @@ class ValidEmailValidator : ConstraintValidator<ValidEmail, String> {
         if (value.isNullOrBlank()) {
             return false
         }
-
         val regex = Regex("^\\S+@\\S+\\.\\S+$")
         return regex.matches(value)
     }

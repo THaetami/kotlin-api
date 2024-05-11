@@ -1,36 +1,68 @@
 package com.belajar.api.kotlin.controller
 
-import com.belajar.api.kotlin.entities.*
-import com.belajar.api.kotlin.entities.user.AuthUserRequest
+import com.belajar.api.kotlin.constant.ApiUrl
+import com.belajar.api.kotlin.constant.StatusMessage
+import com.belajar.api.kotlin.entities.WebResponse
+import com.belajar.api.kotlin.entities.user.LoginRequest
+import com.belajar.api.kotlin.entities.user.LoginResponse
+import com.belajar.api.kotlin.entities.user.RegisterRequest
+import com.belajar.api.kotlin.entities.user.RegisterResponse
 import com.belajar.api.kotlin.service.AuthService
-import jakarta.servlet.http.HttpServletResponse
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 
 @RestController
-@RequestMapping("api")
-class AuthController(val authService: AuthService) {
+@RequestMapping(ApiUrl.API_URL + ApiUrl.AUTH_URL)
+@Tag(name = "Auth", description = "Auth API")
+class AuthController(
+    private val authService: AuthService
+) {
 
-    @PostMapping("auth")
-    fun authenticate(@RequestBody body: AuthUserRequest, response: HttpServletResponse): WebResponse<String> {
-        authService.authenticate(body, response)
-
-        return WebResponse(
-            code = 200,
-            status = "OK",
-            data = "Login success!!"
+    @Operation(summary = "Guest register User")
+    @SecurityRequirement(name = "Authorization")
+    @PostMapping(path = ["/reg/user"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun regUser (@RequestBody request: RegisterRequest): ResponseEntity<WebResponse<RegisterResponse>> {
+        val registerResponse = authService.registerUser(request)
+        val response = WebResponse(
+            code = HttpStatus.CREATED.value(),
+            status = StatusMessage.SUCCESS_CREATE,
+            data = registerResponse
         )
+        return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
 
-    @DeleteMapping("auth")
-    fun unauthenticate(@CookieValue("jwt") jwt: String?, response: HttpServletResponse): WebResponse<String> {
-        authService.unauthenticate(jwt, response)
-
-        return WebResponse(
-            code = 200,
-            status = "OK",
-            data = "Logout success!!"
+    @Operation(summary = "Super admin register Admin")
+    @SecurityRequirement(name = "Authorization")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @PostMapping(path = ["/reg/admin"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun regAdmin (@RequestBody request: RegisterRequest): ResponseEntity<WebResponse<RegisterResponse>> {
+        val registerResponse = authService.registerAdmin(request)
+        val response = WebResponse(
+            code = HttpStatus.CREATED.value(),
+            status = StatusMessage.SUCCESS_CREATE,
+            data = registerResponse
         )
+        return ResponseEntity.status(HttpStatus.CREATED).body(response)
+    }
+
+    @Operation(summary = "Login")
+    @SecurityRequirement(name = "Authorization")
+    @PostMapping(path = ["/login"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun login (@RequestBody request: LoginRequest): ResponseEntity<WebResponse<LoginResponse>> {
+        val loginResponse = authService.login(request)
+        val response = WebResponse(
+            code = HttpStatus.OK.value(),
+            status = StatusMessage.SUCCESS_LOGIN,
+            data = loginResponse
+        )
+        return ResponseEntity.status(HttpStatus.OK).body(response)
     }
 
 }

@@ -6,6 +6,6 @@ data class WebResponse<T>(
 
     val status: String,
 
-    val data: T
+    val data: T,
 
 )
