@@ -10,6 +10,7 @@ import java.util.Optional
 interface UserAccountRepository: JpaRepository<UserAccount, Int> {
     fun findByUsername(username: String): Optional<UserAccount>
     fun existsByUsername(username: String): Boolean
+    fun existsByEmail(email: String): Boolean
     fun getUserByUsername(username: String): UserAccount?
     fun findByConfirmationToken(confirmationToken: String): UserAccount?
     fun findByEmail(email: String): UserAccount?

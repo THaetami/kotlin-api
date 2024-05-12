@@ -141,8 +141,8 @@ class UserServiceImpl(
 
     private fun updateUserData(updateUserCurrentRequest: UpdateUserCurrentRequest, user: UserAccount) {
         user.name = updateUserCurrentRequest.name!!
-        user.email = updateUserCurrentRequest.email!!
         updateUsernameIfChange(updateUserCurrentRequest.username!!, user)
+        updateEmailIfChange(updateUserCurrentRequest.email!!, user)
     }
 
     private fun updateUsernameIfChange(newUsername: String, user: UserAccount) {
@@ -151,6 +151,15 @@ class UserServiceImpl(
                 throw ValidationCustomException(StatusMessage.USERNAME_BEEN_TAKEN, "username")
             }
             user.updateUsername(newUsername)
+        }
+    }
+
+    private fun updateEmailIfChange(newEmail: String, user: UserAccount) {
+        if (newEmail.isNotBlank() && newEmail != user.email) {
+            if (userAccountRepository.existsByEmail(newEmail)) {
+                throw ValidationCustomException(StatusMessage.EMAIL_TAKEN, "email")
+            }
+            user.email = newEmail
         }
     }
 

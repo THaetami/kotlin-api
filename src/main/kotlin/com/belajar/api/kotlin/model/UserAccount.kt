@@ -19,7 +19,7 @@ data class UserAccount (
     @Column(nullable = false, name = "name")
     var name: String,
 
-    @Column(nullable = false, name = "email")
+    @Column(unique = true, nullable = false, name = "email")
     var email: String,
 
     @Column(unique = true, nullable = false, name = "username")
