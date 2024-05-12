@@ -1,9 +1,6 @@
 package com.belajar.api.kotlin.entities.user
 
-import com.belajar.api.kotlin.annotation.user.PassIfNotBlank
-import com.belajar.api.kotlin.annotation.user.UniqueUsername
-import com.belajar.api.kotlin.annotation.user.UsernameIfNotBlank
-import com.belajar.api.kotlin.annotation.user.ValidEmail
+import com.belajar.api.kotlin.annotation.user.*
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
@@ -15,8 +12,7 @@ data class UpdateUserCurrentRequest (
     @field:Size(min = 4, max = 11)
     val name: String?,
 
-    @field:NotBlank
-    @field:ValidEmail
+    @field:EmailIfNotBlank
     val email: String?,
 
     @field:UsernameIfNotBlank
