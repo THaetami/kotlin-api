@@ -8,7 +8,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
-import java.util.*
 
 @Entity
 @Table(name = TableName.M_USER_ACCOUNT)
@@ -31,7 +30,13 @@ data class UserAccount (
     private var password: String,
 
     @Column(name = "is_enable")
-    var isEnable: Boolean = true,
+    var isEnable: Boolean = false,
+
+    @Column(name  = "confirmed")
+    var confirmed: Boolean = false,
+
+    @Column(name = "confirmationToken")
+    val confirmationToken: String? = null,
 
     @ManyToMany(fetch = FetchType.EAGER)
     var roles: List<UserRole> = mutableListOf(),

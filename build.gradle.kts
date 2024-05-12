@@ -33,6 +33,7 @@ dependencies {
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
 	runtimeOnly("org.springframework.boot:spring-boot-devtools")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+	implementation("org.springframework.boot:spring-boot-starter-mail")
 }
 
 tasks.withType<KotlinCompile> {

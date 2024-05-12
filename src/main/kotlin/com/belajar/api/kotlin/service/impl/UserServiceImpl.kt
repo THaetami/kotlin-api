@@ -142,9 +142,7 @@ class UserServiceImpl(
     private fun updateUserData(updateUserCurrentRequest: UpdateUserCurrentRequest, user: UserAccount) {
         user.name = updateUserCurrentRequest.name!!
         user.email = updateUserCurrentRequest.email!!
-        if (updateUserCurrentRequest.username != null) {
-            updateUsernameIfChange(updateUserCurrentRequest.username, user)
-        }
+        updateUsernameIfChange(updateUserCurrentRequest.username!!, user)
     }
 
     private fun updateUsernameIfChange(newUsername: String, user: UserAccount) {

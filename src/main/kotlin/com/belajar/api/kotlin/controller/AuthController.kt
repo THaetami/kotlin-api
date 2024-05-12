@@ -28,14 +28,27 @@ class AuthController(
     @Operation(summary = "Guest register User")
     @SecurityRequirement(name = "Authorization")
     @PostMapping(path = ["/reg/user"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun regUser (@RequestBody request: RegisterRequest): ResponseEntity<WebResponse<RegisterResponse>> {
-        val registerResponse = authService.registerUser(request)
+    fun regUser (@RequestBody request: RegisterRequest): ResponseEntity<WebResponse<String>> {
+        val message = authService.registerUser(request)
         val response = WebResponse(
             code = HttpStatus.CREATED.value(),
-            status = StatusMessage.SUCCESS_CREATE,
-            data = registerResponse
+            status = "User registered",
+            data = message
         )
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
+    }
+
+    @Operation(summary = "User email confirmation")
+    @SecurityRequirement(name = "Authorization")
+    @PostMapping(path = ["/confirm/{token}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun emailConfirmation (@PathVariable("token") token: String): ResponseEntity<WebResponse<String>> {
+        val message = authService.confirm(token)
+        val response = WebResponse(
+            code = HttpStatus.OK.value(),
+            status = "Success",
+            data = message
+        )
+        return ResponseEntity.status(HttpStatus.OK).body(response)
     }
 
     @Operation(summary = "Super admin register Admin")

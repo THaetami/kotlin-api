@@ -67,7 +67,7 @@ class UserController(
         val result = userService.getUserByUsername(username)
         val response = WebResponse(
             code = HttpStatus.OK.value(),
-            status = StatusMessage.SUCCESS_DISABLED,
+            status = StatusMessage.SUCCESS_RETRIEVE,
             data = result
         )
         return ResponseEntity.status(HttpStatus.OK).body(response)
@@ -81,7 +81,7 @@ class UserController(
         val result = userService.disabledOrEnabledUserById(id.toInt())
         val response = WebResponse(
             code = HttpStatus.OK.value(),
-            status = StatusMessage.SUCCESS_DISABLED,
+            status = "Success",
             data = result
         )
         return ResponseEntity.status(HttpStatus.OK).body(response)
