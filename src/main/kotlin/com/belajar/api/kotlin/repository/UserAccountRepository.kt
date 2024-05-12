@@ -12,4 +12,6 @@ interface UserAccountRepository: JpaRepository<UserAccount, Int> {
     fun existsByUsername(username: String): Boolean
     fun getUserByUsername(username: String): UserAccount?
     fun findByConfirmationToken(confirmationToken: String): UserAccount?
+    fun findByEmail(email: String): UserAccount?
+    fun findByResetPasswordToken(resetPasswordToken: String): UserAccount?
 }

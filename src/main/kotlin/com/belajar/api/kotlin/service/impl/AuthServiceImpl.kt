@@ -1,10 +1,9 @@
 package com.belajar.api.kotlin.service.impl
 
 import com.belajar.api.kotlin.constant.UserRoleEnum
-import com.belajar.api.kotlin.entities.user.LoginRequest
-import com.belajar.api.kotlin.entities.user.LoginResponse
-import com.belajar.api.kotlin.entities.user.RegisterRequest
-import com.belajar.api.kotlin.entities.user.RegisterResponse
+import com.belajar.api.kotlin.entities.user.*
+import com.belajar.api.kotlin.exception.ForbiddenException
+import com.belajar.api.kotlin.exception.UnauthorizedException
 import com.belajar.api.kotlin.model.UserAccount
 import com.belajar.api.kotlin.model.UserRole
 import com.belajar.api.kotlin.repository.UserAccountRepository
@@ -32,7 +31,7 @@ class AuthServiceImpl(
     private val authenticationManager: AuthenticationManager,
     private val jwtService: JwtService,
     val validationUtil: ValidationUtil,
-    val mailSender: JavaMailSender
+    val mailSender: JavaMailSender,
 ): AuthService {
 
     @Value("\${template_api.super-admin.name}")
@@ -72,22 +71,42 @@ class AuthServiceImpl(
         validationUtil.validate(request)
         val userRole = userRoleService.saveOrGet(UserRoleEnum.ROLE_USER)
         val user = saveToUserAccountRepository(request, listOf(userRole), false, confirmationToken = generateToken())
-        sendConfirmationEmail(user)
+        val subject = "Confirm your email and activated your account"
+        val text = "Click the link to confirm your email: http://localhost:8081/api/auth/confirm/${user.confirmationToken}"
+        sendEmail(user, subject, text)
         return "Check your email for confirmation link."
     }
 
     @Transactional(rollbackFor = [Exception::class])
     override fun confirm(token: String): String {
-        println(token)
-        val user = userAccountRepository.findByConfirmationToken(token)
-        println()
-        if (user != null) {
-            user.confirmed = true
-            user.isEnable = true
-            userAccountRepository.save(user)
-            return "Email confirmed successfully."
-        }
-        return "Invalid token."
+        val user = userAccountRepository.findByConfirmationToken(token) ?: throw ForbiddenException("Invalid token")
+        user.confirmed = true
+        user.isEnable = true
+        user.confirmationToken = null
+        userAccountRepository.save(user)
+        return "Email confirmed successfully."
+    }
+
+    @Transactional(rollbackFor = [Exception::class])
+    override fun forgotPassword(request: ForgotPasswordRequest): String {
+        val user = userAccountRepository.findByEmail(request.email!!) ?: throw UnauthorizedException("Email not found")
+        val token = generateToken()
+        user.resetPasswordToken = token
+        userAccountRepository.save(user)
+        val subject = "Reset Password"
+        val text = "To reset your password, click the link below:\n http://localhost:8081/api/auth/reset-password/$token"
+        sendEmail(user, subject, text)
+        return "Password reset link sent to your email."
+    }
+
+    @Transactional(rollbackFor = [Exception::class])
+    override fun resetPassword(token: String, request: ResetPasswordRequest): String {
+        val user = userAccountRepository.findByResetPasswordToken(token) ?: throw ForbiddenException("Invalid token")
+        val hashPassword = passwordEncoder.encode(request.password)
+        user.updatePassword(hashPassword)
+        user.resetPasswordToken = null
+        userAccountRepository.save(user)
+        return "Password reset successfully"
     }
 
     @Transactional(rollbackFor = [Exception::class])
@@ -144,11 +163,11 @@ class AuthServiceImpl(
         return UUID.randomUUID().toString()
     }
 
-    private fun sendConfirmationEmail(user: UserAccount) {
+    private fun sendEmail(user: UserAccount, subject: String, text: String) {
         val message = SimpleMailMessage()
         message.setTo(user.email)
-        message.subject = "Confirm your email"
-        message.text = "Click the link to confirm your email: http://localhost:8081/api/auth/confirm/${user.confirmationToken}"
+        message.subject = subject
+        message.text = text
         mailSender.send(message)
     }
 

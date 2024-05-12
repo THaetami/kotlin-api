@@ -3,10 +3,7 @@ package com.belajar.api.kotlin.controller
 import com.belajar.api.kotlin.constant.ApiUrl
 import com.belajar.api.kotlin.constant.StatusMessage
 import com.belajar.api.kotlin.entities.WebResponse
-import com.belajar.api.kotlin.entities.user.LoginRequest
-import com.belajar.api.kotlin.entities.user.LoginResponse
-import com.belajar.api.kotlin.entities.user.RegisterRequest
-import com.belajar.api.kotlin.entities.user.RegisterResponse
+import com.belajar.api.kotlin.entities.user.*
 import com.belajar.api.kotlin.service.AuthService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
@@ -38,11 +35,37 @@ class AuthController(
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
 
-    @Operation(summary = "User email confirmation")
+    @Operation(summary = "User email confirmation and activated account")
     @SecurityRequirement(name = "Authorization")
     @PostMapping(path = ["/confirm/{token}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun emailConfirmation (@PathVariable("token") token: String): ResponseEntity<WebResponse<String>> {
         val message = authService.confirm(token)
+        val response = WebResponse(
+            code = HttpStatus.OK.value(),
+            status = "Success",
+            data = message
+        )
+        return ResponseEntity.status(HttpStatus.OK).body(response)
+    }
+
+    @Operation(summary = "User forgot password")
+    @SecurityRequirement(name = "Authorization")
+    @PostMapping(path = ["/forgot-password"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun forgotPassword (@RequestBody request: ForgotPasswordRequest): ResponseEntity<WebResponse<String>> {
+        val message = authService.forgotPassword(request)
+        val response = WebResponse(
+            code = HttpStatus.OK.value(),
+            status = "Success",
+            data = message
+        )
+        return ResponseEntity.status(HttpStatus.OK).body(response)
+    }
+
+    @Operation(summary = "User reset password")
+    @SecurityRequirement(name = "Authorization")
+    @PostMapping(path = ["/reset-password/{token}"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun resetPassword (@PathVariable("token") token: String, @RequestBody request: ResetPasswordRequest): ResponseEntity<WebResponse<String>> {
+        val message = authService.resetPassword(token, request)
         val response = WebResponse(
             code = HttpStatus.OK.value(),
             status = "Success",

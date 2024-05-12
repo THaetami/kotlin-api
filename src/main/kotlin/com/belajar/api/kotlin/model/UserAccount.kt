@@ -36,7 +36,10 @@ data class UserAccount (
     var confirmed: Boolean = false,
 
     @Column(name = "confirmationToken")
-    val confirmationToken: String? = null,
+    var confirmationToken: String? = null,
+
+    @Column(name = "resetPasswordToken")
+    var resetPasswordToken: String? = null,
 
     @ManyToMany(fetch = FetchType.EAGER)
     var roles: List<UserRole> = mutableListOf(),
