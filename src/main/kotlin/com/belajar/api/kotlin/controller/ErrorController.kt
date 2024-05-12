@@ -1,5 +1,6 @@
 package com.belajar.api.kotlin.controller
 
+import com.belajar.api.kotlin.constant.StatusMessage
 import com.belajar.api.kotlin.entities.WebResponse
 import com.belajar.api.kotlin.exception.ForbiddenException
 import com.belajar.api.kotlin.exception.NotFoundException
@@ -8,6 +9,7 @@ import com.belajar.api.kotlin.exception.ValidationCustomException
 import jakarta.validation.ConstraintViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
@@ -27,6 +29,10 @@ class ErrorController {
     @ExceptionHandler(value = [UnauthorizedException::class])
     fun handleUnauthorizedException( exception: UnauthorizedException ): ResponseEntity<WebResponse<String>> =
         createErrorResponse(HttpStatus.UNAUTHORIZED, exception.message ?: "")
+
+    @ExceptionHandler(AccessDeniedException::class)
+    fun handleAccessDeniedException(ex: AccessDeniedException?): ResponseEntity<WebResponse<String>> =
+        createErrorResponse(HttpStatus.FORBIDDEN, ex?.message ?: "")
 
     @ExceptionHandler(value = [ForbiddenException::class])
     fun handleForbiddenException( exception: ForbiddenException ): ResponseEntity<WebResponse<String>> =
