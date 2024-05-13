@@ -31,9 +31,7 @@ class UserServiceImpl(
 ): UserService {
 
     override fun getUserById(id: Int): UserAccount {
-        return userAccountRepository.findById(id).orElseThrow {
-            throw NotFoundException(StatusMessage.USER_NOT_FOUND)
-        }
+        return findById(id)
     }
 
     @Transactional(rollbackFor = [Exception::class])
@@ -47,9 +45,7 @@ class UserServiceImpl(
     @Transactional(rollbackFor = [Exception::class])
     override fun getUserCurrent(): UserResponse<String> {
         val userId = SecurityContextHolder.getContext().authentication.name
-        val user = userAccountRepository.findById(userId.toInt()).orElseThrow {
-            throw NotFoundException(StatusMessage.USER_NOT_FOUND)
-        }
+        val user = findById(userId.toInt())
         return createUserResponse(user, "null")
     }
 
@@ -57,9 +53,7 @@ class UserServiceImpl(
     override fun updateUserCurrent(updateUserCurrentRequest: UpdateUserCurrentRequest): UserResponse<String> {
         validationUtil.validate(updateUserCurrentRequest)
         val userId = SecurityContextHolder.getContext().authentication.name
-        val user = userAccountRepository.findById(userId.toInt()).orElseThrow {
-            throw NotFoundException(StatusMessage.USER_NOT_FOUND)
-        }
+        val user = findById(userId.toInt())
 
         if (!user.comparePassword(updateUserCurrentRequest.passwordConfirmation!!)) {
             throw ValidationCustomException("Password incorrect", "password")
@@ -79,9 +73,7 @@ class UserServiceImpl(
 
     @Transactional(rollbackFor = [Exception::class])
     override fun disabledOrEnabledUserById(id: Int): String {
-        val user = userAccountRepository.findById(id).orElseThrow {
-            throw NotFoundException(StatusMessage.USER_NOT_FOUND)
-        }
+        val user = findById(id)
 
         if (user.roles.any { it.role == UserRoleEnum.ROLE_SUPER_ADMIN }) {
             throw ForbiddenException(StatusMessage.ACCESS_DENIED)
@@ -122,9 +114,7 @@ class UserServiceImpl(
     @Transactional(rollbackFor = [Exception::class])
     override fun updateAdminById(id: Int, request: RegisterRequest): UserResponse<String> {
         validationUtil.validate(request)
-        val user = userAccountRepository.findById(id).orElseThrow {
-            throw NotFoundException(StatusMessage.USER_NOT_FOUND)
-        }
+        val user = findById(id)
 
         if (user.roles.any { it.role == UserRoleEnum.ROLE_SUPER_ADMIN } || user.roles.size == 1 && user.roles.any { it.role == UserRoleEnum.ROLE_USER }) {
             throw ForbiddenException(StatusMessage.ACCESS_DENIED)
@@ -151,6 +141,12 @@ class UserServiceImpl(
                 throw ValidationCustomException(StatusMessage.USERNAME_BEEN_TAKEN, "username")
             }
             user.updateUsername(newUsername)
+        }
+    }
+
+    private fun findById(id: Int): UserAccount {
+        return userAccountRepository.findById(id).orElseThrow {
+            throw NotFoundException(StatusMessage.USER_NOT_FOUND)
         }
     }
 
