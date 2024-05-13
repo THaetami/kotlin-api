@@ -11,8 +11,11 @@ data class RegisterRequest (
 
     @field:NotBlank
     @field:Pattern(regexp = "^[a-zA-Z ]+\$", message = "must contain only alphabet characters and spaces")
-    @field:Size(min = 4, max = 11)
+    @field:Size(min = 4, max = 23)
     val name: String?,
+
+    @NotBlank
+    val phone: String?,
 
     @field:NotBlank
     @field:UniqueEmail
@@ -22,7 +25,7 @@ data class RegisterRequest (
     @field:NotBlank
     @field:UniqueUsername
     @field:Pattern(regexp = "^[a-zA-Z0-9]+\$", message = "must contain only alphanumeric characters")
-    @field:Size(min = 3, max = 6)
+    @field:Size(min = 3, max = 8)
     val username: String?,
 
     @field:NotBlank

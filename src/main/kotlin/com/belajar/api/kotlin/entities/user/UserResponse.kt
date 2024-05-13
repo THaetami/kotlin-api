@@ -9,8 +9,6 @@ data class UserResponse <T>(
 
     val id: Int,
 
-    val name: String,
-
     val email: String,
 
     val username: String,

@@ -16,6 +16,7 @@ object StatusMessage {
     const val USERNAME_BEEN_TAKEN: String = "Username has already been taken"
     const val EMAIL_TAKEN: String = "Email has already been taken"
     const val USER_NOT_FOUND: String = "User not found"
+    const val CUSTOMER_NOT_FOUND: String = "Customer not found"
     const val ERROR_CREATING_JWT: String = "Error creating JWT"
     const val SUCCESS_LOGIN: String = "Login success"
     const val UNAUTHORIZED: String = "Unauthorized"

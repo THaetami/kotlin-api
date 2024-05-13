@@ -1,6 +1,7 @@
 package com.belajar.api.kotlin.service.impl
 
 import com.belajar.api.kotlin.constant.UserRoleEnum
+import com.belajar.api.kotlin.entities.customer.NewAccountRequest
 import com.belajar.api.kotlin.entities.user.*
 import com.belajar.api.kotlin.exception.ForbiddenException
 import com.belajar.api.kotlin.exception.UnauthorizedException
@@ -8,6 +9,7 @@ import com.belajar.api.kotlin.model.UserAccount
 import com.belajar.api.kotlin.model.UserRole
 import com.belajar.api.kotlin.repository.UserAccountRepository
 import com.belajar.api.kotlin.service.AuthService
+import com.belajar.api.kotlin.service.CustomerService
 import com.belajar.api.kotlin.service.JwtService
 import com.belajar.api.kotlin.service.UserRoleService
 import com.belajar.api.kotlin.validation.ValidationUtil
@@ -32,10 +34,8 @@ class AuthServiceImpl(
     private val jwtService: JwtService,
     val validationUtil: ValidationUtil,
     val mailSender: JavaMailSender,
+    val customerService: CustomerService,
 ): AuthService {
-
-    @Value("\${template_api.super-admin.name}")
-    private lateinit var superAdminName: String
 
     @Value("\${template_api.super-admin.email}")
     private lateinit var superAdminEmail: String
@@ -57,7 +57,6 @@ class AuthServiceImpl(
         val user = userRoleService.saveOrGet(UserRoleEnum.ROLE_USER)
 
         userAccountRepository.saveAndFlush(UserAccount(
-            name = superAdminName,
             email = superAdminEmail,
             username = superAdminUsername,
             password = passwordEncoder.encode(superAdminPassword),
@@ -146,9 +145,8 @@ class AuthServiceImpl(
 
     private fun saveToUserAccountRepository(request: RegisterRequest, userRoles: List<UserRole>, isEnable: Boolean, confirmationToken: String?): UserAccount {
         val hashedPassword = passwordEncoder.encode(request.password)
-        return userAccountRepository.saveAndFlush(
+        val userAccount: UserAccount = userAccountRepository.saveAndFlush(
             UserAccount(
-                name = request.name!!,
                 email = request.email!!,
                 username = request.username!!,
                 password = hashedPassword,
@@ -157,6 +155,15 @@ class AuthServiceImpl(
                 confirmationToken = confirmationToken
             )
         )
+
+        customerService.saveAccount(
+            NewAccountRequest(
+                name = request.name!!,
+                phone = request.phone!!,
+                userAccount = userAccount
+            )
+        )
+        return userAccount
     }
 
     private fun generateToken(): String {

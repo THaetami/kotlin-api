@@ -34,13 +34,14 @@ class UserController(
     @Operation(summary = "Get User Current")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN', 'USER') or authenticated")
-    @GetMapping(path = ["/current"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getUserCurrent (): ResponseEntity<WebResponse<UserResponse<String>>> {
         val user = userService.getUserCurrent()
         val response = WebResponse(
             code = HttpStatus.OK.value(),
             status = StatusMessage.SUCCESS_RETRIEVE,
-            data = user
+            data = user,
+            paginationResponse = null
         )
         return ResponseEntity.status(HttpStatus.OK).body(response)
     }
@@ -48,13 +49,14 @@ class UserController(
     @Operation(summary = "Update User Current")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER') and !hasRole('SUPER_ADMIN')")
-    @PutMapping(path = ["/current"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @PutMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun updateUserCurrent (@RequestBody request: UpdateUserCurrentRequest): ResponseEntity<WebResponse<UserResponse<String>>> {
         val user = userService.updateUserCurrent(request)
         val response = WebResponse(
             code = HttpStatus.OK.value(),
             status = StatusMessage.SUCCESS_UPDATE,
-            data = user
+            data = user,
+            paginationResponse = null
         )
         return ResponseEntity.status(HttpStatus.OK).body(response)
     }
@@ -68,7 +70,8 @@ class UserController(
         val response = WebResponse(
             code = HttpStatus.OK.value(),
             status = StatusMessage.SUCCESS_RETRIEVE,
-            data = result
+            data = result,
+            paginationResponse = null
         )
         return ResponseEntity.status(HttpStatus.OK).body(response)
     }
@@ -82,7 +85,8 @@ class UserController(
         val response = WebResponse(
             code = HttpStatus.OK.value(),
             status = "Success",
-            data = result
+            data = result,
+            paginationResponse = null
         )
         return ResponseEntity.status(HttpStatus.OK).body(response)
     }
@@ -96,7 +100,8 @@ class UserController(
         val response = WebResponse(
             code = HttpStatus.OK.value(),
             status = StatusMessage.SUCCESS_RETRIEVE,
-            data = users
+            data = users,
+            paginationResponse = null
         )
         return ResponseEntity.status(HttpStatus.OK).body(response)
     }
@@ -110,7 +115,8 @@ class UserController(
         val response = WebResponse(
             code = HttpStatus.OK.value(),
             status = StatusMessage.SUCCESS_RETRIEVE,
-            data = users
+            data = users,
+            paginationResponse = null
         )
         return ResponseEntity.status(HttpStatus.OK).body(response)
     }
@@ -124,7 +130,8 @@ class UserController(
         val response = WebResponse(
             code = HttpStatus.OK.value(),
             status = StatusMessage.SUCCESS_UPDATE,
-            data = user
+            data = user,
+            paginationResponse = null
         )
         return ResponseEntity.status(HttpStatus.OK).body(response)
     }

@@ -16,9 +16,6 @@ data class UserAccount (
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Int? = null,
 
-    @Column(nullable = false, name = "name")
-    var name: String,
-
     @Column(unique = true, nullable = false, name = "email")
     var email: String,
 

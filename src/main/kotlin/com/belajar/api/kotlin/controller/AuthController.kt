@@ -30,7 +30,8 @@ class AuthController(
         val response = WebResponse(
             code = HttpStatus.CREATED.value(),
             status = "User registered",
-            data = message
+            data = message,
+            paginationResponse = null
         )
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
@@ -43,7 +44,8 @@ class AuthController(
         val response = WebResponse(
             code = HttpStatus.OK.value(),
             status = "Success",
-            data = message
+            data = message,
+            paginationResponse = null
         )
         return ResponseEntity.status(HttpStatus.OK).body(response)
     }
@@ -56,7 +58,8 @@ class AuthController(
         val response = WebResponse(
             code = HttpStatus.OK.value(),
             status = "Success",
-            data = message
+            data = message,
+            paginationResponse = null
         )
         return ResponseEntity.status(HttpStatus.OK).body(response)
     }
@@ -69,7 +72,8 @@ class AuthController(
         val response = WebResponse(
             code = HttpStatus.OK.value(),
             status = "Success",
-            data = message
+            data = message,
+            paginationResponse = null
         )
         return ResponseEntity.status(HttpStatus.OK).body(response)
     }
@@ -83,7 +87,8 @@ class AuthController(
         val response = WebResponse(
             code = HttpStatus.CREATED.value(),
             status = StatusMessage.SUCCESS_CREATE,
-            data = registerResponse
+            data = registerResponse,
+            paginationResponse = null
         )
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
@@ -96,7 +101,8 @@ class AuthController(
         val response = WebResponse(
             code = HttpStatus.OK.value(),
             status = StatusMessage.SUCCESS_LOGIN,
-            data = loginResponse
+            data = loginResponse,
+            paginationResponse = null
         )
         return ResponseEntity.status(HttpStatus.OK).body(response)
     }

@@ -8,4 +8,6 @@ data class WebResponse<T>(
 
     val data: T,
 
+    val paginationResponse: PaginationResponse?
+
 )
