@@ -14,13 +14,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 
@@ -35,105 +33,60 @@ class UserController(
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN', 'USER') or authenticated")
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getUserCurrent (): ResponseEntity<WebResponse<UserResponse<String>>> {
-        val user = userService.getUserCurrent()
-        val response = WebResponse(
-            code = HttpStatus.OK.value(),
-            status = StatusMessage.SUCCESS_RETRIEVE,
-            data = user,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(HttpStatus.OK).body(response)
-    }
+    fun getUserCurrent (): ResponseEntity<WebResponse<UserResponse<String>>> =
+        handleRequest ({ userService.getUserCurrent() }, HttpStatus.OK, StatusMessage.SUCCESS_RETRIEVE)
 
     @Operation(summary = "Update User Current")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER') and !hasRole('SUPER_ADMIN')")
     @PutMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun updateUserCurrent (@RequestBody request: UpdateUserCurrentRequest): ResponseEntity<WebResponse<UserResponse<String>>> {
-        val user = userService.updateUserCurrent(request)
-        val response = WebResponse(
-            code = HttpStatus.OK.value(),
-            status = StatusMessage.SUCCESS_UPDATE,
-            data = user,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(HttpStatus.OK).body(response)
-    }
+    fun updateUserCurrent (@RequestBody request: UpdateUserCurrentRequest): ResponseEntity<WebResponse<UserResponse<String>>> =
+        handleRequest ({ userService.updateUserCurrent(request) }, HttpStatus.OK, StatusMessage.SUCCESS_UPDATE)
 
     @Operation(summary = "Super admin and Admin get User by username")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @GetMapping(path = ["/{username}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getUserById (@PathVariable("username") username: String): ResponseEntity<WebResponse<UserResponse<String>>> {
-        val result = userService.getUserByUsername(username)
-        val response = WebResponse(
-            code = HttpStatus.OK.value(),
-            status = StatusMessage.SUCCESS_RETRIEVE,
-            data = result,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(HttpStatus.OK).body(response)
-    }
+    fun getUserById (@PathVariable("username") username: String): ResponseEntity<WebResponse<UserResponse<String>>> =
+        handleRequest ({ userService.getUserByUsername(username) }, HttpStatus.OK, StatusMessage.SUCCESS_RETRIEVE)
 
     @Operation(summary = "Super admin disable or enable Admin and User by id")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
     @PutMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun disabledOrEnabledUserById (@PathVariable("id") id: String): ResponseEntity<WebResponse<String>> {
-        val result = userService.disabledOrEnabledUserById(id.toInt())
-        val response = WebResponse(
-            code = HttpStatus.OK.value(),
-            status = "Success",
-            data = result,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(HttpStatus.OK).body(response)
-    }
+    fun disabledOrEnabledUserById (@PathVariable("id") id: String): ResponseEntity<WebResponse<String>> =
+        handleRequest ({ userService.disabledOrEnabledUserById(id.toInt()) }, HttpStatus.OK, StatusMessage.SUCCESS)
 
     @Operation(summary = "Super admin and Admin get all User")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @GetMapping(path = ["/all"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getUserAll (): ResponseEntity<WebResponse<List<UserResponse<String>>>> {
-        val users = userService.getUserAll()
-        val response = WebResponse(
-            code = HttpStatus.OK.value(),
-            status = StatusMessage.SUCCESS_RETRIEVE,
-            data = users,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(HttpStatus.OK).body(response)
-    }
+    fun getUserAll (): ResponseEntity<WebResponse<List<UserResponse<String>>>> =
+        handleRequest ({ userService.getUserAll() }, HttpStatus.OK, StatusMessage.SUCCESS_RETRIEVE_LIST)
 
     @Operation(summary = "Super admin get all Admin")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
     @GetMapping(path = ["/admin"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getAdminAll (): ResponseEntity<WebResponse<List<UserResponse<String>>>> {
-        val users = userService.getAdminAll()
-        val response = WebResponse(
-            code = HttpStatus.OK.value(),
-            status = StatusMessage.SUCCESS_RETRIEVE,
-            data = users,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(HttpStatus.OK).body(response)
-    }
+    fun getAdminAll (): ResponseEntity<WebResponse<List<UserResponse<String>>>> =
+        handleRequest ({ userService.getAdminAll() }, HttpStatus.OK, StatusMessage.SUCCESS_RETRIEVE_LIST)
 
     @Operation(summary = "Super admin update Admin by id")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
     @PutMapping(path = ["/admin/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun updateAdminById (@PathVariable("id") id: Int, @RequestBody request: RegisterRequest): ResponseEntity<WebResponse<UserResponse<String>>> {
-        val user = userService.updateAdminById(id, request)
+    fun updateAdminById (@PathVariable("id") id: Int, @RequestBody request: RegisterRequest): ResponseEntity<WebResponse<UserResponse<String>>> =
+        handleRequest ({ userService.updateAdminById(id, request) }, HttpStatus.OK, StatusMessage.SUCCESS_UPDATE)
+
+    private fun <T> handleRequest(requestHandler: () -> T, status: HttpStatus, message: String): ResponseEntity<WebResponse<T>> {
+        val data = requestHandler()
         val response = WebResponse(
-            code = HttpStatus.OK.value(),
-            status = StatusMessage.SUCCESS_UPDATE,
-            data = user,
+            code = status.value(),
+            status = message,
+            data = data,
             paginationResponse = null
         )
-        return ResponseEntity.status(HttpStatus.OK).body(response)
+        return ResponseEntity.status(status).body(response)
     }
 
 }

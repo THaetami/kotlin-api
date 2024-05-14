@@ -1,6 +1,8 @@
 package com.belajar.api.kotlin.constant
 
 object StatusMessage {
+    const val SUCCESS: String = "Success"
+    const val SUCCESS_CREATE_USER = "Account successfully created"
     const val SUCCESS_CREATE: String = "Data successfully created"
     const val SUCCESS_RETRIEVE: String = "Data successfully retrieved"
     const val SUCCESS_UPDATE: String = "Data successfully updated"

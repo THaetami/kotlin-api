@@ -11,6 +11,6 @@ interface CustomerService {
     fun saveBulk(requests: List<CustomerRequest>): List<CustomerResponse>
     fun getById(id: String): CustomerResponse
     fun getAll(request: SearchCustomerRequest): Page<CustomerResponse>
-    fun update(request: UpdateCustomerRequest): CustomerResponse
-    fun delete(id: String)
+    fun update(request: UpdateCustomerRequest, id: String): CustomerResponse
+    fun delete(id: String): String
 }

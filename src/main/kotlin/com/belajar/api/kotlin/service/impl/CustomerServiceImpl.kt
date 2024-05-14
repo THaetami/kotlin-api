@@ -94,12 +94,11 @@ class CustomerServiceImpl(
     }
 
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(request: UpdateCustomerRequest): CustomerResponse {
+    override fun update(request: UpdateCustomerRequest, id: String): CustomerResponse {
         validationUtil.validate(request)
-        getCustomerById(request.id)
+        getCustomerById(id)
         val customer = customerRepository.saveAndFlush(
             Customer(
-                id = request.id,
                 name = request.name,
                 phone = request.phone
             )
@@ -108,9 +107,10 @@ class CustomerServiceImpl(
     }
 
     @Transactional(rollbackFor = [Exception::class])
-    override fun delete(id: String) {
+    override fun delete(id: String): String {
         val customer = getCustomerById(id)
         customerRepository.softDelete(customer.id.toString())
+        return StatusMessage.SUCCESS_DELETE
     }
 
     private fun createCustomerResponse(customer: Customer): CustomerResponse {

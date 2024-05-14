@@ -68,8 +68,18 @@ class AuthServiceImpl(
     @Transactional(rollbackFor = [Exception::class])
     override fun registerUser(request: RegisterRequest): String {
         validationUtil.validate(request)
+
         val userRole = userRoleService.saveOrGet(UserRoleEnum.ROLE_USER)
         val user = saveToUserAccountRepository(request, listOf(userRole), false, confirmationToken = generateToken())
+
+        customerService.saveAccount(
+            NewAccountRequest(
+                name = request.name!!,
+                phone = request.phone!!,
+                userAccount = user
+            )
+        )
+
         val subject = "Confirm your email and activated your account"
         val text = "Click the link to confirm your email: http://localhost:8081/api/auth/confirm/${user.confirmationToken}"
         sendEmail(user, subject, text)
@@ -153,14 +163,6 @@ class AuthServiceImpl(
                 roles = userRoles,
                 isEnable = isEnable,
                 confirmationToken = confirmationToken
-            )
-        )
-
-        customerService.saveAccount(
-            NewAccountRequest(
-                name = request.name!!,
-                phone = request.phone!!,
-                userAccount = userAccount
             )
         )
         return userAccount

@@ -25,86 +25,48 @@ class AuthController(
     @Operation(summary = "Guest register User")
     @SecurityRequirement(name = "Authorization")
     @PostMapping(path = ["/reg/user"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun regUser (@RequestBody request: RegisterRequest): ResponseEntity<WebResponse<String>> {
-        val message = authService.registerUser(request)
-        val response = WebResponse(
-            code = HttpStatus.CREATED.value(),
-            status = "User registered",
-            data = message,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(HttpStatus.CREATED).body(response)
-    }
+    fun regUser(@RequestBody request: RegisterRequest): ResponseEntity<WebResponse<String>> =
+        handleRequest ({ authService.registerUser( request) }, HttpStatus.CREATED, "Account registered")
 
     @Operation(summary = "User email confirmation and activated account")
     @SecurityRequirement(name = "Authorization")
     @PostMapping(path = ["/confirm/{token}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun emailConfirmation (@PathVariable("token") token: String): ResponseEntity<WebResponse<String>> {
-        val message = authService.confirm(token)
-        val response = WebResponse(
-            code = HttpStatus.OK.value(),
-            status = "Success",
-            data = message,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(HttpStatus.OK).body(response)
-    }
+    fun emailConfirmation(@PathVariable("token") token: String): ResponseEntity<WebResponse<String>> =
+        handleRequest ({ authService.confirm( token) }, HttpStatus.OK, StatusMessage.SUCCESS)
 
     @Operation(summary = "User forgot password")
     @SecurityRequirement(name = "Authorization")
     @PostMapping(path = ["/forgot-password"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun forgotPassword (@RequestBody request: ForgotPasswordRequest): ResponseEntity<WebResponse<String>> {
-        val message = authService.forgotPassword(request)
-        val response = WebResponse(
-            code = HttpStatus.OK.value(),
-            status = "Success",
-            data = message,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(HttpStatus.OK).body(response)
-    }
+    fun forgotPassword(@RequestBody request: ForgotPasswordRequest): ResponseEntity<WebResponse<String>> =
+        handleRequest ({ authService.forgotPassword( request) }, HttpStatus.OK, StatusMessage.SUCCESS)
 
     @Operation(summary = "User reset password")
     @SecurityRequirement(name = "Authorization")
     @PostMapping(path = ["/reset-password/{token}"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun resetPassword (@PathVariable("token") token: String, @RequestBody request: ResetPasswordRequest): ResponseEntity<WebResponse<String>> {
-        val message = authService.resetPassword(token, request)
-        val response = WebResponse(
-            code = HttpStatus.OK.value(),
-            status = "Success",
-            data = message,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(HttpStatus.OK).body(response)
-    }
+    fun resetPassword(@PathVariable("token") token: String, @RequestBody request: ResetPasswordRequest): ResponseEntity<WebResponse<String>> =
+        handleRequest ({ authService.resetPassword( token, request) }, HttpStatus.OK, StatusMessage.SUCCESS)
 
     @Operation(summary = "Super admin register Admin")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping(path = ["/reg/admin"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun regAdmin (@RequestBody request: RegisterRequest): ResponseEntity<WebResponse<RegisterResponse>> {
-        val registerResponse = authService.registerAdmin(request)
-        val response = WebResponse(
-            code = HttpStatus.CREATED.value(),
-            status = StatusMessage.SUCCESS_CREATE,
-            data = registerResponse,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(HttpStatus.CREATED).body(response)
-    }
+    fun regAdmin(@RequestBody request: RegisterRequest): ResponseEntity<WebResponse<RegisterResponse>> =
+        handleRequest ({ authService.registerAdmin( request) }, HttpStatus.CREATED, StatusMessage.SUCCESS_CREATE_USER)
 
     @Operation(summary = "Login")
     @SecurityRequirement(name = "Authorization")
     @PostMapping(path = ["/login"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun login (@RequestBody request: LoginRequest): ResponseEntity<WebResponse<LoginResponse>> {
-        val loginResponse = authService.login(request)
+    fun login(@RequestBody request: LoginRequest): ResponseEntity<WebResponse<LoginResponse>> =
+        handleRequest ({ authService.login(request) }, HttpStatus.OK, StatusMessage.SUCCESS_LOGIN)
+
+    private fun <T> handleRequest(requestHandler: () -> T, status: HttpStatus, message: String): ResponseEntity<WebResponse<T>> {
+        val data = requestHandler()
         val response = WebResponse(
-            code = HttpStatus.OK.value(),
-            status = StatusMessage.SUCCESS_LOGIN,
-            data = loginResponse,
+            code = status.value(),
+            status = message,
+            data = data,
             paginationResponse = null
         )
-        return ResponseEntity.status(HttpStatus.OK).body(response)
+        return ResponseEntity.status(status).body(response)
     }
-
 }

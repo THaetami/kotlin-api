@@ -11,6 +11,7 @@ import com.belajar.api.kotlin.entities.customer.UpdateCustomerRequest
 import com.belajar.api.kotlin.service.CustomerService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping(ApiUrl.API_URL + ApiUrl.CUSTOMER_URL)
+@Tag(name = "Customer", description = "Customer API")
 class CustomerController(
     val customerService: CustomerService
 ) {
@@ -26,57 +28,23 @@ class CustomerController(
     @Operation(summary = "Super admin and Admin create new customer")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
-    @PostMapping(
-        consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
-    )
-    fun save(@RequestBody request: CustomerRequest): ResponseEntity<WebResponse<CustomerResponse>> {
-        val customerResponse = customerService.saveOrGet(request)
-        val response = WebResponse(
-            code = HttpStatus.CREATED.value(),
-            status = "Customer successfully created",
-            data = customerResponse,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(HttpStatus.CREATED).body(response)
-    }
+    @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun save(@RequestBody request: CustomerRequest): ResponseEntity<WebResponse<CustomerResponse>> =
+        handleRequest ({ customerService.saveOrGet(request) }, HttpStatus.CREATED, StatusMessage.SUCCESS_CREATE)
 
     @Operation(summary = "Super admin and Admin create new list of customer")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
-    @PostMapping(
-        path = ["/bulk"],
-        consumes = [MediaType.APPLICATION_JSON_VALUE],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
-    )
-    fun saveBulk(@RequestBody request: List<CustomerRequest>): ResponseEntity<WebResponse<List<CustomerResponse>>> {
-        val customers = customerService.saveBulk(request)
-        val response = WebResponse(
-            code = HttpStatus.CREATED.value(),
-            status = "List of customer successfully created",
-            data = customers,
-            paginationResponse = null,
-        )
-        return ResponseEntity.status(HttpStatus.CREATED).body(response)
-    }
+    @PostMapping(path = ["/bulk"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun saveBulk(@RequestBody request: List<CustomerRequest>): ResponseEntity<WebResponse<List<CustomerResponse>>> =
+        handleRequest ({ customerService.saveBulk(request) }, HttpStatus.CREATED, StatusMessage.SUCCESS_CREATE_LIST)
 
     @Operation(summary = "Super admin and Admin get customer by id")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
-    @GetMapping(
-        path = ["/{id}"],
-        produces = [MediaType.APPLICATION_JSON_VALUE]
-    )
-    fun getById(@PathVariable id: String): ResponseEntity<WebResponse<CustomerResponse>> {
-        val customer = customerService.getById(id)
-        val response = WebResponse(
-            code = HttpStatus.OK.value(),
-            status = "Customer succesfully retrieved",
-            data = customer,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(HttpStatus.OK).body(response)
-    }
+    @GetMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun getById(@PathVariable id: String): ResponseEntity<WebResponse<CustomerResponse>> =
+        handleRequest ({ customerService.getById(id) }, HttpStatus.OK, StatusMessage.SUCCESS_RETRIEVE)
 
     @Operation(summary = "Super admin and Admin get all customer")
     @SecurityRequirement(name = "Authorization")
@@ -118,37 +86,26 @@ class CustomerController(
     @Operation(summary = "Super admin and Admin update customer")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
-    @PutMapping(
-        produces = [MediaType.APPLICATION_JSON_VALUE],
-        consumes = [MediaType.APPLICATION_JSON_VALUE]
-    )
-    fun update(@RequestBody request: UpdateCustomerRequest): ResponseEntity<WebResponse<CustomerResponse>> {
-        val customer = customerService.update(request)
-        val response = WebResponse(
-            code = HttpStatus.OK.value(),
-            status = "Customer updated",
-            data = customer,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(HttpStatus.OK).body(response)
-    }
+    @PutMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE], consumes = [MediaType.APPLICATION_JSON_VALUE])
+    fun update(@RequestBody request: UpdateCustomerRequest, @PathVariable id: String): ResponseEntity<WebResponse<CustomerResponse>> =
+        handleRequest ({ customerService.update(request, id) }, HttpStatus.OK, StatusMessage.SUCCESS_UPDATE)
 
     @Operation(summary = "Super admin and Admin delete customer")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
-    @DeleteMapping(
-        path = ["/{id}"]
-    )
-    fun delete(@PathVariable id: String): ResponseEntity<WebResponse<String>> {
-        customerService.delete(id)
+    @DeleteMapping(path = ["/{id}"])
+    fun delete(@PathVariable id: String): ResponseEntity<WebResponse<String>> =
+        handleRequest ({ customerService.delete(id) }, HttpStatus.OK, StatusMessage.SUCCESS)
+
+    private fun <T> handleRequest(requestHandler: () -> T, status: HttpStatus, message: String): ResponseEntity<WebResponse<T>> {
+        val data = requestHandler()
         val response = WebResponse(
-            code = HttpStatus.OK.value(),
-            status = "Customer updated",
-            data = "Customer deleted",
+            code = status.value(),
+            status = message,
+            data = data,
             paginationResponse = null
         )
-        return ResponseEntity.status(HttpStatus.OK).body(response)
+        return ResponseEntity.status(status).body(response)
     }
-
 
 }
