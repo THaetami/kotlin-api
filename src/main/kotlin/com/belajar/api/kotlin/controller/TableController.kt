@@ -36,14 +36,14 @@ class TableController(
     fun getAll(): ResponseEntity<WebResponse<List<TableResponse>>> =
         handleRequest ({ tableService.getAll() }, HttpStatus.OK, StatusMessage.SUCCESS_RETRIEVE_LIST)
 
-    @Operation(summary = "Super admin, Admin and User table by id")
+    @Operation(summary = "Super admin, Admin and User get table by id")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN', 'USER')")
     @GetMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getById(@PathVariable id: String): ResponseEntity<WebResponse<TableResponse>> =
         handleRequest ({ tableService.getById(id) }, HttpStatus.OK, StatusMessage.SUCCESS_RETRIEVE)
 
-    @Operation(summary = "Super admin and Admin update table")
+    @Operation(summary = "Super admin and Admin update table by id")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @PutMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE], consumes = [MediaType.APPLICATION_JSON_VALUE])
