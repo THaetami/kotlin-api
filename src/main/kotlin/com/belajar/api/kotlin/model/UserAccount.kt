@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.time.LocalDateTime
+import jakarta.persistence.Table
 
 @Entity
 @Table(name = TableName.M_USER_ACCOUNT)

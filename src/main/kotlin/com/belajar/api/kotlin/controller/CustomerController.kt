@@ -93,7 +93,7 @@ class CustomerController(
     @Operation(summary = "Super admin and Admin delete customer")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
-    @DeleteMapping(path = ["/{id}"])
+    @DeleteMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun delete(@PathVariable id: String): ResponseEntity<WebResponse<String>> =
         handleRequest ({ customerService.delete(id) }, HttpStatus.OK, StatusMessage.SUCCESS)
 
