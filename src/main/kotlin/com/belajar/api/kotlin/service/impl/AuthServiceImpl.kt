@@ -98,6 +98,7 @@ class AuthServiceImpl(
 
     @Transactional(rollbackFor = [Exception::class])
     override fun forgotPassword(request: ForgotPasswordRequest): String {
+        validationUtil.validate(request)
         val user = userAccountRepository.findByEmail(request.email!!) ?: throw UnauthorizedException("Email not found")
         val token = generateToken()
         user.resetPasswordToken = token
@@ -110,6 +111,7 @@ class AuthServiceImpl(
 
     @Transactional(rollbackFor = [Exception::class])
     override fun resetPassword(token: String, request: ResetPasswordRequest): String {
+        validationUtil.validate(request)
         val user = userAccountRepository.findByResetPasswordToken(token) ?: throw ForbiddenException("Invalid token")
         val hashPassword = passwordEncoder.encode(request.password)
         user.updatePassword(hashPassword)
