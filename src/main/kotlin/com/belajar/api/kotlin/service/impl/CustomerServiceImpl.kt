@@ -1,11 +1,9 @@
 package com.belajar.api.kotlin.service.impl
 
-import com.belajar.api.kotlin.CustomerSpecification
+import com.belajar.api.kotlin.specification.CustomerSpecification
 import com.belajar.api.kotlin.constant.StatusMessage
 import com.belajar.api.kotlin.entities.customer.*
-import com.belajar.api.kotlin.exception.BadRequestException
 import com.belajar.api.kotlin.exception.NotFoundException
-import com.belajar.api.kotlin.exception.ValidationCustomException
 import com.belajar.api.kotlin.model.Customer
 import com.belajar.api.kotlin.repository.CustomerRepository
 import com.belajar.api.kotlin.service.CustomerService
@@ -13,10 +11,8 @@ import com.belajar.api.kotlin.validation.ValidationUtil
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.server.ResponseStatusException
 
 @Service
 @Transactional(rollbackFor = [Exception::class])
@@ -30,7 +26,7 @@ class CustomerServiceImpl(
     override fun saveAccount(request: NewAccountRequest): Customer {
         return customerRepository.saveAndFlush(
             Customer(
-                name = request.name,
+                name = request.name!!,
                 phone = request.phone,
                 userAccount = request.userAccount
             )
@@ -56,7 +52,7 @@ class CustomerServiceImpl(
 
     @Transactional(rollbackFor = [Exception::class])
     override fun saveBulk(requests: List<CustomerRequest>): List<CustomerResponse> {
-        validationUtil.validate(requests)
+        validationUtil.validateAll(requests)
         val responses = mutableListOf<CustomerResponse>()
         requests.forEach { request ->
             val existingCustomer = customerRepository.findByNameLikeIgnoreCaseAndPhoneEquals(request.name, request.phoneNumber)
@@ -81,7 +77,7 @@ class CustomerServiceImpl(
 
     @Transactional(rollbackFor = [Exception::class])
     override fun getAll(request: SearchCustomerRequest): Page<CustomerResponse> {
-        val customerSpecification = specification.specification(request.name)
+        val customerSpecification = specification.specification(request)
 
         val sort = Sort.by(Sort.Direction.fromString(request.direction), request.sortBy)
         val page = if (request.page <= 0) 1 else request.page
@@ -113,7 +109,7 @@ class CustomerServiceImpl(
     private fun createCustomerResponse(customer: Customer): CustomerResponse {
         return CustomerResponse(
             id = customer.id!!,
-            name = customer.name!!,
+            name = customer.name,
             phoneNumber = customer.phone!!
         )
     }

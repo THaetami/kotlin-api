@@ -23,7 +23,7 @@ data class Customer (
     val id: String? = null,
 
     @Column(name = "name", nullable = false)
-    var name: String? = null,
+    var name: String,
 
     @Column(name = "phone_number")
     var phone: String? = null,

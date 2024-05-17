@@ -51,7 +51,7 @@ class CustomerController(
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getAll(
-        @RequestParam(name = "name", required = true) name: String,
+        @RequestParam(name = "name", required = false) name: String,
         @RequestParam(name = "direction", defaultValue = "asc") direction: String,
         @RequestParam(name = "sortBy", defaultValue = "name") sortBy: String,
         @RequestParam(name = "page", defaultValue = "1") page: Int,
@@ -75,7 +75,7 @@ class CustomerController(
         )
         val response = WebResponse(
             code = HttpStatus.OK.value(),
-            status = "List of customer successfully retrieved",
+            status = StatusMessage.SUCCESS_RETRIEVE_LIST,
             data = customerResponse.content,
             paginationResponse = paginationResponse
         )

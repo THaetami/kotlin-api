@@ -20,11 +20,12 @@ object StatusMessage {
     const val USER_NOT_FOUND: String = "User not found"
     const val CUSTOMER_NOT_FOUND: String = "Customer not found"
     const val TABLE_NOT_FOUND: String = "Table not found"
+    const val MENU_NOT_FOUND: String = "Menu not found"
+    const val IMAGE_NOT_FOUND: String = "Image not found"
     const val ERROR_CREATING_JWT: String = "Error creating JWT"
     const val SUCCESS_LOGIN: String = "Login success"
     const val UNAUTHORIZED: String = "Unauthorized"
     const val CONFLICT: String = "Data has reference to another table"
     const val ACCESS_DENIED: String = "Access Denied"
-    const val IMAGE_NOT_FOUND: String = "Image not found"
     const val ERROR_INVALID_JWT: String = "Invalid JWT"
 }

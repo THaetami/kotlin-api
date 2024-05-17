@@ -62,7 +62,7 @@ class TableServiceImpl(
     private fun createTableResponse(table: TableRest): TableResponse {
         return TableResponse(
             id = table.id!!,
-            name = table.name!!,
+            name = table.name,
         )
     }
 

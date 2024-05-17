@@ -41,7 +41,7 @@ class BeanConfiguration  {
 //    @Bean
 //    fun objectMapper(): ObjectMapper = ObjectMapper()
 
-    @Bean
-    fun restClient(): RestClient = RestClient.create()
+//    @Bean
+//    fun restClient(): RestClient = RestClient.create()
 
 }

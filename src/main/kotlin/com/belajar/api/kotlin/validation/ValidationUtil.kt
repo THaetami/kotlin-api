@@ -15,4 +15,11 @@ class ValidationUtil(val validator: Validator) {
         }
     }
 
+    fun <T> validateAll(collection: Collection<T>) {
+        val violations = collection.flatMap { validator.validate(it) }
+        if (violations.isNotEmpty()) {
+            throw ConstraintViolationException(violations.toSet())
+        }
+    }
+
 }
