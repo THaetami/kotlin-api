@@ -6,13 +6,13 @@ import com.belajar.api.kotlin.entities.image.ImageResponse
 import com.belajar.api.kotlin.entities.menu.MenuRequest
 import com.belajar.api.kotlin.entities.menu.MenuResponse
 import com.belajar.api.kotlin.entities.menu.SearchMenuRequest
-import com.belajar.api.kotlin.exception.BadRequestException
 import com.belajar.api.kotlin.exception.NotFoundException
 import com.belajar.api.kotlin.model.Menu
 import com.belajar.api.kotlin.repository.MenuRepository
 import com.belajar.api.kotlin.service.ImageService
 import com.belajar.api.kotlin.service.MenuService
 import com.belajar.api.kotlin.specification.MenuSpecification
+import com.belajar.api.kotlin.validation.ValidationUtil
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
@@ -24,15 +24,14 @@ import org.springframework.web.multipart.MultipartFile
 class MenuServiceImpl(
     private val imageService: ImageService,
     private val menuRepository: MenuRepository,
-    private val specification: MenuSpecification
+    private val specification: MenuSpecification,
+    private val validationUtil: ValidationUtil
 
 ): MenuService {
 
     @Transactional(rollbackFor = [Exception::class])
     override fun save(request: MenuRequest, image: MultipartFile): MenuResponse {
-        if (request.name.isBlank()) {
-            throw BadRequestException("name not blank")
-        }
+        validationUtil.validate(request)
         val imageResult = imageService.save(image)
 
         val menu = menuRepository.saveAndFlush(
@@ -42,13 +41,52 @@ class MenuServiceImpl(
                 image = imageResult
             )
         )
-        return convertToResponse(menu)
+        return createMenuResponse(menu)
+    }
+
+    @Transactional(rollbackFor = [Exception::class])
+    override fun saveBulk(requests: List<MenuRequest>): List<MenuResponse> {
+        validationUtil.validateAll(requests)
+        val responses = mutableListOf<MenuResponse>()
+        requests.forEach { request ->
+            val menu = Menu(
+                name = request.name,
+                price = request.price
+            )
+            menuRepository.saveAndFlush(menu)
+            val response = createMenuResponse(menu)
+            responses.add(response)
+        }
+        return responses
     }
 
     @Transactional(rollbackFor = [Exception::class])
     override fun getById(id: String): MenuResponse {
         val menu = findById(id)
-        return convertToResponse(menu)
+        return createMenuResponse(menu)
+    }
+
+    @Transactional(rollbackFor = [Exception::class])
+    override fun updateById(request: MenuRequest, updateImage: MultipartFile?, id: String): MenuResponse {
+        validationUtil.validate(request)
+
+        val menu = findById(id)
+        val image = menu.image
+
+        if (updateImage !== null) {
+            if (image === null) {
+                val newImage = imageService.save(updateImage)
+                menu.image = newImage
+            } else {
+                val changeImage = imageService.updateById(menu.image?.id!!, updateImage)
+                menu.image = changeImage
+            }
+        }
+
+        menu.name = request.name
+        menu.price = request.price
+
+        return  createMenuResponse(menu)
     }
 
     @Transactional(rollbackFor = [Exception::class])
@@ -61,7 +99,7 @@ class MenuServiceImpl(
 
         val menus = menuRepository.findAll(menuSpecification, pageable)
         return menus.map { menu ->
-            convertToResponse(menu)
+            createMenuResponse(menu)
         }
     }
 
@@ -73,9 +111,10 @@ class MenuServiceImpl(
         return StatusMessage.SUCCESS_DELETE
     }
 
-    private fun convertToResponse(menu: Menu): MenuResponse {
+    private fun createMenuResponse(menu: Menu): MenuResponse {
         val imageResponse = menu.image?.let {
             ImageResponse(
+                id = it.id!!,
                 name = it.name,
                 url = "${ApiUrl.API_URL}${ApiUrl.MENU_URL}/${it.id}/images"
             )

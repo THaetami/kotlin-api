@@ -5,10 +5,9 @@ import jakarta.validation.constraints.NotNull
 import org.springframework.web.multipart.MultipartFile
 
 data class MenuRequest(
-    @NotBlank
-    @NotNull
+    @field:NotBlank
     var name: String,
 
-    @NotNull
+    @field:NotNull
     var price: Long,
 )

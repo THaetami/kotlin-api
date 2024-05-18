@@ -7,7 +7,6 @@ import com.belajar.api.kotlin.entities.WebResponse
 import com.belajar.api.kotlin.entities.customer.CustomerRequest
 import com.belajar.api.kotlin.entities.customer.CustomerResponse
 import com.belajar.api.kotlin.entities.customer.SearchCustomerRequest
-import com.belajar.api.kotlin.entities.customer.UpdateCustomerRequest
 import com.belajar.api.kotlin.service.CustomerService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
@@ -87,7 +86,7 @@ class CustomerController(
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @PutMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE], consumes = [MediaType.APPLICATION_JSON_VALUE])
-    fun update(@RequestBody request: UpdateCustomerRequest, @PathVariable id: String): ResponseEntity<WebResponse<CustomerResponse>> =
+    fun update(@RequestBody request: CustomerRequest, @PathVariable id: String): ResponseEntity<WebResponse<CustomerResponse>> =
         handleRequest ({ customerService.update(request, id) }, HttpStatus.OK, StatusMessage.SUCCESS_UPDATE)
 
     @Operation(summary = "Super admin and Admin delete customer")

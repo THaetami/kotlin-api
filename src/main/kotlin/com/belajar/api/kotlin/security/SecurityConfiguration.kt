@@ -31,6 +31,7 @@ class SecurityConfiguration(
                     .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                     .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/menu/*/images/**").permitAll()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter::class.java)

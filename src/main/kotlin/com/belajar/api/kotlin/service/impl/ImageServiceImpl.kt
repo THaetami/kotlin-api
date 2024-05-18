@@ -8,6 +8,8 @@ import com.belajar.api.kotlin.repository.ImageRepository
 import com.belajar.api.kotlin.service.ImageService
 import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.Resource
+import org.springframework.core.io.UrlResource
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -39,11 +41,8 @@ class ImageServiceImpl(
 
     @Transactional(rollbackFor = [Exception::class])
     override fun save(image: MultipartFile): Image {
-        if (!listOf("image/jpg", "image/jpeg", "image/png", "image/svg+xml").contains(image.contentType))
-            throw BadRequestException("invalid image type")
-        val fileName = "${System.currentTimeMillis()}${image.originalFilename}"
+        val fileName = validateAndSaveImage(image)
         val filePath: Path = imagePath.resolve(fileName)
-        Files.copy(image.inputStream, filePath)
 
         val saved = Image(
             name = fileName,
@@ -55,14 +54,53 @@ class ImageServiceImpl(
     }
 
     @Transactional(rollbackFor = [Exception::class])
+    override fun getById(id: String): Resource {
+        val image = findById(id)
+        val filePath = Paths.get(image.path)
+        return UrlResource(filePath.toUri())
+    }
+
+    @Transactional(rollbackFor = [Exception::class])
     override fun softDeleteById(id: String) {
         val image = findById(id)
         imageRepository.softDelete(image.id!!)
+    }
+
+    @Transactional(rollbackFor = [Exception::class])
+    override fun updateById(id: String, updateImage: MultipartFile): Image {
+        val image = findById(id)
+
+        val filePath = Paths.get(image.path)
+        Files.delete(filePath)
+
+        val newFileName = validateAndSaveImage(updateImage)
+        val newFilePath: Path = imagePath.resolve(newFileName)
+
+        image.name = newFileName
+        image.path = newFilePath.toString()
+        image.size = updateImage.size
+        image.contentType = updateImage.contentType!!
+
+        return image
     }
 
     private fun findById(id: String): Image {
         return imageRepository.findById(id).orElseThrow {
             throw NotFoundException(StatusMessage.IMAGE_NOT_FOUND)
         }
+    }
+
+
+    private fun validateAndSaveImage(image: MultipartFile): String {
+        val allowedContentTypes = listOf("image/jpg", "image/jpeg", "image/png", "image/svg+xml")
+        if (!allowedContentTypes.contains(image.contentType)) {
+            throw BadRequestException("invalid image type")
+        }
+
+        val fileName = "${System.currentTimeMillis()}${image.originalFilename}"
+        val filePath: Path = imagePath.resolve(fileName)
+        Files.copy(image.inputStream, filePath)
+
+        return fileName
     }
 }

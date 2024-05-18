@@ -7,4 +7,5 @@ object ApiUrl {
     const val CUSTOMER_URL: String = "/customer"
     const val TABLE_URL: String = "/table"
     const val MENU_URL: String = "/menu"
+    const val IMAGE_URL: String = "/image"
 }

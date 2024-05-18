@@ -90,11 +90,11 @@ class CustomerServiceImpl(
     }
 
     @Transactional(rollbackFor = [Exception::class])
-    override fun update(request: UpdateCustomerRequest, id: String): CustomerResponse {
+    override fun update(request: CustomerRequest, id: String): CustomerResponse {
         validationUtil.validate(request)
         val customer = getCustomerById(id)
         customer.name = request.name
-        customer.phone = request.phone
+        customer.phone = request.phoneNumber
         customerRepository.saveAndFlush(customer)
         return createCustomerResponse(customer)
     }

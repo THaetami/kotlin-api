@@ -39,6 +39,13 @@ class MenuController(
     ): ResponseEntity<WebResponse<MenuResponse>> =
         handleRequest({ menuService.save(menuRequest, image) }, HttpStatus.CREATED, StatusMessage.SUCCESS_CREATE)
 
+    @Operation(summary = "Super admin and Admin create new list of menu")
+    @SecurityRequirement(name = "Authorization")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
+    @PostMapping(path = ["/bulk"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun saveBulk(@RequestBody requests: List<MenuRequest>): ResponseEntity<WebResponse<List<MenuResponse>>> =
+        handleRequest ({ menuService.saveBulk(requests) }, HttpStatus.CREATED, StatusMessage.SUCCESS_CREATE_LIST)
+
     @Operation(summary = "Super admin, Admin and User get menu by id")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN', 'USER')")
@@ -47,6 +54,21 @@ class MenuController(
         @PathVariable id: String
     ): ResponseEntity<WebResponse<MenuResponse>> =
         handleRequest({ menuService.getById(id) }, HttpStatus.OK, StatusMessage.SUCCESS_RETRIEVE)
+
+    @Operation(summary = "Super admin, and Admin update menu by id")
+    @SecurityRequirement(name = "Authorization")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
+    @PutMapping(
+        path = ["/{id}"],
+        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
+    fun updateById(
+        @PathVariable id: String,
+        @ModelAttribute menuRequest: MenuRequest,
+        @RequestParam("image") updateImage: MultipartFile?,
+    ): ResponseEntity<WebResponse<MenuResponse>> =
+        handleRequest({ menuService.updateById(menuRequest, updateImage, id) }, HttpStatus.OK, StatusMessage.SUCCESS_UPDATE)
 
     @Operation(summary = "Super admin, Admin and User get all menu")
     @SecurityRequirement(name = "Authorization")

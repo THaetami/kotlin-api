@@ -8,7 +8,9 @@ import org.springframework.web.multipart.MultipartFile
 
 interface MenuService {
     fun save(request: MenuRequest, image: MultipartFile): MenuResponse
+    fun saveBulk(requests: List<MenuRequest>): List<MenuResponse>
     fun getById(id: String): MenuResponse
+    fun updateById(request: MenuRequest, updateImage: MultipartFile?, id: String): MenuResponse
     fun getAll(request: SearchMenuRequest): Page<MenuResponse>
     fun delete(id: String): String
 }
