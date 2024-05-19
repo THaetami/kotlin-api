@@ -2,6 +2,7 @@ package com.belajar.api.kotlin.entities.customer
 
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
 
 data class CustomerRequest(
     @field:NotBlank
@@ -9,6 +10,7 @@ data class CustomerRequest(
     val name: String,
 
     @field:Pattern(regexp = "^[0-9 ]+\$", message = "must contain only numeric characters and spaces")
+    @field:Size(max = 25)
     val phoneNumber: String,
 )
 

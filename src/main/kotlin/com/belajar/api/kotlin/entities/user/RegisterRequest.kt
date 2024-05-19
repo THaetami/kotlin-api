@@ -16,6 +16,7 @@ data class RegisterRequest (
 
     @field:NotBlank
     @field:Pattern(regexp = "^[0-9 ]+\$", message = "must contain only numeric characters and spaces")
+    @field:Size(max = 25)
     val phone: String?,
 
     @field:NotBlank

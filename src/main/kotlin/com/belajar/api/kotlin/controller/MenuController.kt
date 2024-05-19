@@ -9,6 +9,7 @@ import com.belajar.api.kotlin.entities.menu.MenuResponse
 import com.belajar.api.kotlin.entities.menu.SearchMenuRequest
 import com.belajar.api.kotlin.entities.menu.UpdateMenuRequest
 import com.belajar.api.kotlin.service.MenuService
+import com.belajar.api.kotlin.utils.Utilities
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -24,7 +25,8 @@ import org.springframework.web.multipart.MultipartFile
 @RequestMapping(ApiUrl.API_URL + ApiUrl.MENU_URL)
 @Tag(name = "Menu", description = "Menu API")
 class MenuController(
-    val menuService: MenuService,
+    private val menuService: MenuService,
+    private val utilities: Utilities
 ) {
 
     @Operation(summary = "Super admin, and Admin create new menu")
@@ -38,14 +40,14 @@ class MenuController(
         @ModelAttribute menuRequest: MenuRequest,
         @RequestParam("image") image: MultipartFile,
     ): ResponseEntity<WebResponse<MenuResponse>> =
-        handleRequest({ menuService.save(menuRequest, image) }, HttpStatus.CREATED, StatusMessage.SUCCESS_CREATE)
+        utilities.handleRequest({ menuService.save(menuRequest, image) }, HttpStatus.CREATED, StatusMessage.SUCCESS_CREATE)
 
     @Operation(summary = "Super admin and Admin create new list of menu")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @PostMapping(path = ["/bulk"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun saveBulk(@RequestBody requests: List<MenuRequest>): ResponseEntity<WebResponse<List<MenuResponse>>> =
-        handleRequest ({ menuService.saveBulk(requests) }, HttpStatus.CREATED, StatusMessage.SUCCESS_CREATE_LIST)
+        utilities.handleRequest ({ menuService.saveBulk(requests) }, HttpStatus.CREATED, StatusMessage.SUCCESS_CREATE_LIST)
 
     @Operation(summary = "Super admin, Admin and User get menu by id")
     @SecurityRequirement(name = "Authorization")
@@ -54,7 +56,7 @@ class MenuController(
     fun getById(
         @PathVariable id: String
     ): ResponseEntity<WebResponse<MenuResponse>> =
-        handleRequest({ menuService.getById(id) }, HttpStatus.OK, StatusMessage.SUCCESS_RETRIEVE)
+        utilities.handleRequest({ menuService.getById(id) }, HttpStatus.OK, StatusMessage.SUCCESS_RETRIEVE)
 
     @Operation(summary = "Super admin, and Admin update menu by id")
     @SecurityRequirement(name = "Authorization")
@@ -69,7 +71,7 @@ class MenuController(
         @ModelAttribute updateMenuRequest: UpdateMenuRequest,
         @RequestParam("image") updateImage: MultipartFile?,
     ): ResponseEntity<WebResponse<MenuResponse>> =
-        handleRequest({ menuService.updateById(updateMenuRequest, updateImage, id) }, HttpStatus.OK, StatusMessage.SUCCESS_UPDATE)
+        utilities.handleRequest({ menuService.updateById(updateMenuRequest, updateImage, id) }, HttpStatus.OK, StatusMessage.SUCCESS_UPDATE)
 
     @Operation(summary = "Super admin, Admin and User get all menu")
     @SecurityRequirement(name = "Authorization")
@@ -117,17 +119,6 @@ class MenuController(
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @DeleteMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun delete(@PathVariable id: String): ResponseEntity<WebResponse<String>> =
-        handleRequest ({ menuService.delete(id) }, HttpStatus.OK, StatusMessage.SUCCESS)
-
-    private fun <T> handleRequest(requestHandler: () -> T, status: HttpStatus, message: String): ResponseEntity<WebResponse<T>> {
-        val data = requestHandler()
-        val response = WebResponse(
-            code = status.value(),
-            status = message,
-            data = data,
-            paginationResponse = null
-        )
-        return ResponseEntity.status(status).body(response)
-    }
+        utilities.handleRequest ({ menuService.delete(id) }, HttpStatus.OK, StatusMessage.SUCCESS)
 
 }

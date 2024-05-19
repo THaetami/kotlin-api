@@ -11,7 +11,7 @@ import org.springframework.cache.annotation.EnableCaching
 
 @SpringBootApplication
 @EnableCaching
-@OpenAPIDefinition(info = Info(title = "Template login system api", version = "1.0.0", description = "KOTLIN API"))
+@OpenAPIDefinition(info = Info(title = "Restaurant public api", version = "1.0.0", description = "KOTLIN API"))
 @SecurityScheme(name = "Authorization", scheme = "bearer", type = SecuritySchemeType.HTTP, bearerFormat = "JWT")
 class Application
 

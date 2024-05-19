@@ -60,18 +60,13 @@ class PaymentServiceImpl(
             "item_details" to paymentItemDetailRequest
         )
 
-        val transactionToken = try {
-            SnapApi.createTransactionToken(requestBody)
+        val (transactionToken, redirectUrl) = try {
+            val transactionToken = SnapApi.createTransactionToken(requestBody)
+            val redirectUrl = SnapApi.createTransactionRedirectUrl(requestBody)
+            transactionToken to redirectUrl
         } catch (e: MidtransError) {
-            log.error("Error creating transaction token: ${e.message}")
-            throw RuntimeException("Error creating transaction token", e)
-        }
-
-        val redirectUrl = try {
-            SnapApi.createTransactionRedirectUrl(requestBody)
-        } catch (e: MidtransError) {
-            log.error("Error creating transaction redirect URL: ${e.message}")
-            throw RuntimeException("Error creating transaction redirect URL", e)
+            log.error("Error creating transaction token or redirect URL: ${e.message}")
+            throw RuntimeException("Error creating transaction token or redirect URL", e)
         }
 
         val payment = Payment(
