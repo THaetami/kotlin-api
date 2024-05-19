@@ -1,12 +1,10 @@
 package com.belajar.api.kotlin.entities.menu
 
-import com.belajar.api.kotlin.annotation.menu.UniqueNameMenu
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 
-data class MenuRequest(
+data class UpdateMenuRequest(
     @field:NotBlank
-    @field:UniqueNameMenu
     var name: String,
 
     @field:NotNull

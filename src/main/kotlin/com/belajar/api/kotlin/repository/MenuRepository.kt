@@ -13,4 +13,6 @@ interface MenuRepository: JpaRepository<Menu, String>, JpaSpecificationExecutor<
     @Modifying
     @Query("update Menu m set m.deleted = true where m.id = :id")
     fun softDelete(@Param("id") id: String)
+
+    fun existsByName(name: String): Boolean
 }

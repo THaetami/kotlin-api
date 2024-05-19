@@ -30,6 +30,7 @@ class SecurityConfiguration(
                 auth
                     .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/auth/confirm/**").permitAll()
                     .requestMatchers("/api-docs/**", "/swagger-ui/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/menu/*/images/**").permitAll()
                     .anyRequest().authenticated()

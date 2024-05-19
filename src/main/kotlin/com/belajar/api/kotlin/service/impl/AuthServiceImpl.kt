@@ -81,7 +81,7 @@ class AuthServiceImpl(
         )
 
         val subject = "Confirm your email and activated your account"
-        val text = "Click the link to confirm your email: http://localhost:8081/api/auth/confirm/${user.confirmationToken}"
+        val text = "Click the link to confirm your email: http://localhost:8081/api/auth/confirm?token=${user.confirmationToken}"
         sendEmail(user, subject, text)
         return "Check your email for confirmation link."
     }
@@ -104,7 +104,7 @@ class AuthServiceImpl(
         user.resetPasswordToken = token
         userAccountRepository.save(user)
         val subject = "Reset Password"
-        val text = "To reset your password, click the link below:\n http://localhost:8081/api/auth/reset-password/$token"
+        val text = "To reset your password, click the link below:\n http://localhost:8081/api/auth/reset-password?token=$token"
         sendEmail(user, subject, text)
         return "Password reset link sent to your email."
     }

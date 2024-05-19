@@ -164,8 +164,8 @@ class UserServiceImpl(
             email = user.email,
             username = user.username,
             roles = roleNames,
-            createdAt = user.createdAt,
-            updatedAt = user.updatedAt,
+            createdAt = user.createdAt.toString(),
+            updatedAt = user.updatedAt.toString(),
             token = token
         )
     }

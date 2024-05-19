@@ -7,6 +7,7 @@ import com.belajar.api.kotlin.entities.WebResponse
 import com.belajar.api.kotlin.entities.menu.MenuRequest
 import com.belajar.api.kotlin.entities.menu.MenuResponse
 import com.belajar.api.kotlin.entities.menu.SearchMenuRequest
+import com.belajar.api.kotlin.entities.menu.UpdateMenuRequest
 import com.belajar.api.kotlin.service.MenuService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
@@ -65,10 +66,10 @@ class MenuController(
     )
     fun updateById(
         @PathVariable id: String,
-        @ModelAttribute menuRequest: MenuRequest,
+        @ModelAttribute updateMenuRequest: UpdateMenuRequest,
         @RequestParam("image") updateImage: MultipartFile?,
     ): ResponseEntity<WebResponse<MenuResponse>> =
-        handleRequest({ menuService.updateById(menuRequest, updateImage, id) }, HttpStatus.OK, StatusMessage.SUCCESS_UPDATE)
+        handleRequest({ menuService.updateById(updateMenuRequest, updateImage, id) }, HttpStatus.OK, StatusMessage.SUCCESS_UPDATE)
 
     @Operation(summary = "Super admin, Admin and User get all menu")
     @SecurityRequirement(name = "Authorization")

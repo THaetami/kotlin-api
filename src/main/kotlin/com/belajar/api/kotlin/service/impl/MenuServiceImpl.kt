@@ -6,8 +6,11 @@ import com.belajar.api.kotlin.entities.image.ImageResponse
 import com.belajar.api.kotlin.entities.menu.MenuRequest
 import com.belajar.api.kotlin.entities.menu.MenuResponse
 import com.belajar.api.kotlin.entities.menu.SearchMenuRequest
+import com.belajar.api.kotlin.entities.menu.UpdateMenuRequest
 import com.belajar.api.kotlin.exception.NotFoundException
+import com.belajar.api.kotlin.exception.ValidationCustomException
 import com.belajar.api.kotlin.model.Menu
+import com.belajar.api.kotlin.model.UserAccount
 import com.belajar.api.kotlin.repository.MenuRepository
 import com.belajar.api.kotlin.service.ImageService
 import com.belajar.api.kotlin.service.MenuService
@@ -67,7 +70,7 @@ class MenuServiceImpl(
     }
 
     @Transactional(rollbackFor = [Exception::class])
-    override fun updateById(request: MenuRequest, updateImage: MultipartFile?, id: String): MenuResponse {
+    override fun updateById(request: UpdateMenuRequest, updateImage: MultipartFile?, id: String): MenuResponse {
         validationUtil.validate(request)
 
         val menu = findById(id)
@@ -83,7 +86,7 @@ class MenuServiceImpl(
             }
         }
 
-        menu.name = request.name
+        updateNameMenuIfChange(request.name, menu)
         menu.price = request.price
 
         return  createMenuResponse(menu)
@@ -109,6 +112,20 @@ class MenuServiceImpl(
         menuRepository.softDelete(menu.id!!)
         imageService.softDeleteById(menu.image?.id!!)
         return StatusMessage.SUCCESS_DELETE
+    }
+
+    @Transactional(rollbackFor = [Exception::class])
+    override fun getMenuById(id: String): Menu {
+        return findById(id)
+    }
+
+    private fun updateNameMenuIfChange(newName: String, menu: Menu) {
+        if (newName != menu.name) {
+            if (menuRepository.existsByName(newName)) {
+                throw ValidationCustomException(StatusMessage.NAME_MENU_BEEN_TAKEN, "name")
+            }
+            menu.name = newName
+        }
     }
 
     private fun createMenuResponse(menu: Menu): MenuResponse {

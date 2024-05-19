@@ -22,7 +22,7 @@ class TableController(
     val tableService: TableService
 ) {
 
-    @Operation(summary = "Super admin, Admin and User create new table")
+    @Operation(summary = "Super admin and Admin create new table")
     @SecurityRequirement(name = "Authorization")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])

@@ -59,6 +59,14 @@ class TableServiceImpl(
         return StatusMessage.SUCCESS_DELETE
     }
 
+    @Transactional(rollbackFor = [Exception::class])
+    override fun getByName(name: String): TableRest {
+        val table = tableRepository.findByNameLikeIgnoreCase(name).orElseThrow {
+            throw NotFoundException(StatusMessage.TABLE_NOT_FOUND)
+        }
+        return table
+    }
+
     private fun createTableResponse(table: TableRest): TableResponse {
         return TableResponse(
             id = table.id!!,

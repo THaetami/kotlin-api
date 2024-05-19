@@ -29,9 +29,8 @@ class AuthController(
         handleRequest ({ authService.registerUser( request) }, HttpStatus.CREATED, "Account registered")
 
     @Operation(summary = "User email confirmation and activated account")
-    @SecurityRequirement(name = "Authorization")
-    @PostMapping(path = ["/confirm/{token}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun emailConfirmation(@PathVariable("token") token: String): ResponseEntity<WebResponse<String>> =
+    @GetMapping(path = ["/confirm"], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun emailConfirmation(@RequestParam("token") token: String): ResponseEntity<WebResponse<String>> =
         handleRequest ({ authService.confirm( token) }, HttpStatus.OK, StatusMessage.SUCCESS)
 
     @Operation(summary = "User forgot password")
@@ -42,8 +41,8 @@ class AuthController(
 
     @Operation(summary = "User reset password")
     @SecurityRequirement(name = "Authorization")
-    @PostMapping(path = ["/reset-password/{token}"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun resetPassword(@PathVariable("token") token: String, @RequestBody request: ResetPasswordRequest): ResponseEntity<WebResponse<String>> =
+    @PostMapping(path = ["/reset-password"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun resetPassword(@RequestParam("token") token: String, @RequestBody request: ResetPasswordRequest): ResponseEntity<WebResponse<String>> =
         handleRequest ({ authService.resetPassword( token, request) }, HttpStatus.OK, StatusMessage.SUCCESS)
 
     @Operation(summary = "Super admin register Admin")

@@ -106,6 +106,21 @@ class CustomerServiceImpl(
         return StatusMessage.SUCCESS_DELETE
     }
 
+    @Transactional(rollbackFor = [Exception::class])
+    override fun getCustomerByNameAndPhone(name: String, phone: String): Customer? {
+        return customerRepository.findByNameLikeIgnoreCaseAndPhoneEquals(name, phone).orElse(null)
+    }
+
+    @Transactional(rollbackFor = [Exception::class])
+    override fun save(name: String, phone: String): Customer {
+        return customerRepository.saveAndFlush(
+            Customer(
+                name = name,
+                phone = phone
+            )
+        )
+    }
+
     private fun createCustomerResponse(customer: Customer): CustomerResponse {
         return CustomerResponse(
             id = customer.id!!,

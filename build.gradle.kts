@@ -34,6 +34,7 @@ dependencies {
 	runtimeOnly("org.springframework.boot:spring-boot-devtools")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 	implementation("org.springframework.boot:spring-boot-starter-mail")
+	implementation("com.midtrans:java-library:3.0.0")
 }
 
 tasks.withType<KotlinCompile> {

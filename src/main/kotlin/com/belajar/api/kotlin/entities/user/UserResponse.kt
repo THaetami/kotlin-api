@@ -1,10 +1,6 @@
 package com.belajar.api.kotlin.entities.user
 
 import com.belajar.api.kotlin.constant.UserRoleEnum
-import com.belajar.api.kotlin.model.UserRole
-import java.time.LocalDateTime
-import java.util.*
-
 data class UserResponse <T>(
 
     val id: Int,
@@ -15,9 +11,9 @@ data class UserResponse <T>(
 
     val roles: List<UserRoleEnum?>,
 
-    val createdAt: LocalDateTime,
+    val createdAt: String,
 
-    val updatedAt: LocalDateTime,
+    val updatedAt: String,
 
     val token: T,
 

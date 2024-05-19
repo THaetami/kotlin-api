@@ -7,4 +7,8 @@ object TableName {
     const val M_TABLE = "table_rest"
     const val M_MENU = "menu"
     const val M_IMAGE = "image"
+    const val M_TRANS_TYPE = "trans_type"
+    const val M_BILL = "bill"
+    const val M_BILL_DETAIL = "bill_detail"
+    const val M_PAYMENT = "payment"
 }
