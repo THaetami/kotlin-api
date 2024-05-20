@@ -1,15 +1,12 @@
 package com.belajar.api.kotlin.utils
 
 import com.belajar.api.kotlin.entities.WebResponse
-import com.belajar.api.kotlin.exception.UnauthorizedException
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.io.Decoders
-import io.jsonwebtoken.security.Keys
-import jakarta.servlet.http.Cookie
-import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Component
 class Utilities {
@@ -24,5 +21,15 @@ class Utilities {
         )
         return ResponseEntity.status(status).body(response)
     }
+
+    internal fun parseDate(requestDate: String?, format: String): Date {
+        val simpleDateFormat = SimpleDateFormat(format)
+        return try {
+            simpleDateFormat.parse(requestDate)
+        } catch (e: ParseException) {
+            throw RuntimeException(e)
+        }
+    }
+
 
 }

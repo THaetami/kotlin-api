@@ -87,13 +87,13 @@ class MenuController(
         @RequestParam(name = "size", defaultValue = "10") size: Int
     ): ResponseEntity<WebResponse<List<MenuResponse>>> {
         val request = SearchMenuRequest(
-            name = name,
-            minPrice = minPrice,
-            maxPrice = maxPrice,
-            direction = direction,
-            sortBy = sortBy,
-            page = page,
-            size = size,
+            name,
+            minPrice,
+            maxPrice,
+            direction,
+            sortBy,
+            page,
+            size,
         )
         val menuResponse = menuService.getAll(request)
         val paginationResponse = PaginationResponse(

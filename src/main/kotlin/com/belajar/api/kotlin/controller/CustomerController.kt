@@ -59,11 +59,11 @@ class CustomerController(
         @RequestParam(name = "size", defaultValue = "10") size: Int
     ): ResponseEntity<WebResponse<List<CustomerResponse>>> {
         val request = SearchCustomerRequest(
-            name = name,
-            direction = direction,
-            sortBy = sortBy,
-            page = page,
-            size = size,
+            name,
+            direction,
+            sortBy,
+            page,
+            size,
         )
         val customerResponse = customerService.getAll(request)
         val paginationResponse = PaginationResponse(

@@ -24,6 +24,7 @@ object StatusMessage {
     const val MENU_NOT_FOUND: String = "Menu not found"
     const val IMAGE_NOT_FOUND: String = "Image not found"
     const val TRANS_TYPE_NOT_FOUND: String = "Trans type not found"
+    const val BILL_NOT_FOUND: String = "Bill not found"
     const val ERROR_CREATING_JWT: String = "Error creating JWT"
     const val SUCCESS_LOGIN: String = "Login success"
     const val UNAUTHORIZED: String = "Unauthorized"

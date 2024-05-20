@@ -4,8 +4,8 @@ object ApiUrl {
     const val API_URL: String = "/api"
     const val AUTH_URL: String = "/auth"
     const val USER_URL: String = "/user"
-    const val CUSTOMER_URL: String = "/customer"
-    const val TABLE_URL: String = "/table"
-    const val MENU_URL: String = "/menu"
-    const val BILL_URL: String = "/bill"
+    const val CUSTOMER_URL: String = "/customers"
+    const val TABLE_URL: String = "/tables"
+    const val MENU_URL: String = "/menus"
+    const val BILL_URL: String = "/bills"
 }

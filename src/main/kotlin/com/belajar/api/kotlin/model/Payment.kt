@@ -17,7 +17,7 @@ data class Payment(
     var redirectUrl: String,
 
     @Column(name = "transaction_status")
-    val transactionStatus: String,
+    var transactionStatus: String,
 
     @OneToOne(mappedBy = "payment")
     var bill: Bill? = null,
